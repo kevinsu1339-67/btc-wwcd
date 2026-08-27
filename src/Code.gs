@@ -1,0 +1,191 @@
+// ====== Apps Script 層：只做 I/O 與組裝，邏輯一律放 lib.js ======
+
+const SHEET_ID = '1j3ZR5aMRWtVA2ILoydljTk1UjQ61qCn7KDPSqlOjha0';  // docs/sheet-setup.md
+const TZ = 'Asia/Taipei';
+// Coinbase Exchange ticker。Binance 已被廢棄：api.binance.com 與 data-api.binance.vision
+// 對 Google 伺服器 IP 回應 HTTP 451 或 403，故 Apps Script 無法使用。
+const TICKER_URL = 'https://api.exchange.coinbase.com/products/BTC-USD/ticker';
+
+function sheet_(name) {
+  const sh = SpreadsheetApp.openById(SHEET_ID).getSheetByName(name);
+  if (!sh) throw new Error('找不到分頁：' + name);
+  return sh;
+}
+
+// 讀 bets 全部資料列（已去表頭）。空表回空陣列。
+function betRows_() {
+  const sh = sheet_('bets');
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  return sh.getRange(2, 1, last - 1, BET_COLS.length).getValues();
+}
+
+function json_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function nowIso_(d) {
+  return Utilities.formatDate(d, TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
+}
+
+// 市價擷取。快取 30 秒，避免每次點擊都打一次 Coinbase Exchange。
+// 抓不到時退回 bets 最後一列的市價，並標記 src=fallback 讓事後看得出來。
+function fetchMarketPrice_() {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get('mkt');
+  if (hit) return { price: Number(hit), src: 'live' };
+
+  try {
+    const res = UrlFetchApp.fetch(TICKER_URL, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) throw new Error('HTTP ' + res.getResponseCode());
+    const p = parseTickerPrice(res.getContentText());
+    cache.put('mkt', String(p), 30);
+    return { price: p, src: 'live' };
+  } catch (err) {
+    const rows = betRows_();
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const p = Number(rows[i][6]);
+      if (isFinite(p) && p > 0) return { price: p, src: 'fallback' };
+    }
+    throw new Error('無法取得市價，且 bets 沒有任何可用的歷史市價：' + err.message);
+  }
+}
+
+// ====== 身分 ======
+
+// PIN 不存明碼。加入 playerId 當鹽，避免兩個人用同一組 PIN 產生相同雜湊。
+function pinHash_(playerId, pin) {
+  const raw = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    pin + '|' + playerId,
+    Utilities.Charset.UTF_8
+  );
+  return raw.map((b) => ('0' + (b & 0xff).toString(16)).slice(-2)).join('');
+}
+
+// 首次送出即註冊；之後同一個 player_id 必須 PIN 相符。
+// 這同時擋掉冒名去改別人的注。
+function authenticate_(playerId, name, pin, now) {
+  const sh = sheet_('players');
+  const last = sh.getLastRow();
+  const rows = (last < 2) ? [] : sh.getRange(2, 1, last - 1, 4).getValues();
+  const h = pinHash_(playerId, pin);
+
+  for (let i = 0; i < rows.length; i++) {
+    // String() 是補強而非主防線：主防線是 validateSubmission（lib.js）擋掉
+    // 會讓 Sheets 變型別的 playerId。這裡只是防 getValues() 讀回數字或布林
+    // 時，=== 比對整組失效——正是原本認證繞過漏洞成立的地方。
+    if (String(rows[i][0]) === playerId) {
+      if (String(rows[i][2]) === h) return { ok: true };
+      // 公開端點＋4 到 6 位數 PIN，暴力猜對就是攻擊本身（猜中即可冒名下注）。
+      // 擁有者選擇「可見度優先於封鎖」：只記錄，不做計數／快取／鎖定，
+      // 因此一次暴力掃描會在執行記錄留下數千筆，這是刻意的取捨。
+      // 絕不記錄猜測的 PIN 本身。
+      console.error('PIN 錯誤嘗試，player_id=' + playerId);
+      return {
+        ok: false,
+        reason: 'wrong_pin',
+        message: '「' + name + '」這個名字已經有人用了，PIN 不對。換個名字，或確認你自己的 PIN。'
+      };
+    }
+  }
+
+  sh.appendRow([playerId, name, h, nowIso_(now)]);
+  return { ok: true, registered: true };
+}
+
+// ====== HTTP 進入點 ======
+
+function doGet() {
+  try {
+    const now = new Date();
+    const nowMs = now.getTime();
+    const priced = fetchMarketPrice_();
+    const dl = daysLeftFrom(nowMs);
+    return json_({
+      ok: true,
+      serverTime: nowIso_(now),
+      mkt: priced.price,
+      src: priced.src,
+      daysLeft: dl,
+      tol: tolFor(dl),
+      closed: isClosed(nowMs),
+      roster: rosterFromRows(betRows_())
+    });
+  } catch (err) {
+    // 本端點為公開無認證 API，故錯誤詳情不可洩露至外部呼叫者。
+    // 完整錯誤已記錄於 Cloud Logging，Sheet 擁有者可據以偵錯。
+    console.error('doGet 拋出例外', err);
+    return json_({ ok: false, reason: 'server_error', message: '伺服器暫時無法使用，請稍後再試' });
+  }
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  // 併發寫入會讓兩個人拿到同一個 seq，導致 rosterFromRows 取錯筆。
+  lock.waitLock(20000);
+  try {
+    const body = JSON.parse(e.postData.contents);
+    const now = new Date();
+    const nowMs = now.getTime();
+
+    // 截止寫死在伺服器端。前端隱藏按鈕只是輔助，不能當作規則。
+    if (isClosed(nowMs)) {
+      return json_({ ok: false, reason: 'closed', message: '下注已於 9/11 00:00 截止。' });
+    }
+
+    // 驗證與清理一律交給 validateSubmission（lib.js），避免公式注入：
+    // name／nonce 會原封不動寫進 Sheet 儲存格，若允許 =／+／-／@ 開頭，
+    // Sheets 會把它當公式求值，doGet 又會把算出來的值當作 roster 公開回傳。
+    // player_id 也由 validateSubmission 一併算出並驗證過（NFKC 正規化後
+    // 才會出現的公式開頭字元只能在那裡擋下），這裡不再自行做正規化，
+    // 避免又出現一個沒被驗證過的 player_id 來源。
+    const v = validateSubmission(body);
+    if (!v.ok) return json_(v);
+    const { name, playerId, pin, bet, nonce } = v;
+
+    const rows = betRows_();
+
+    // 雙擊或網路重試會用同一個 nonce 再送一次，回成功但不重複寫。
+    if (hasRecentNonce(rows, nonce, nowMs)) {
+      return json_({ ok: true, duplicate: true, roster: rosterFromRows(rows) });
+    }
+
+    const auth = authenticate_(playerId, name, pin, now);
+    if (!auth.ok) return json_(auth);
+
+    const priced = fetchMarketPrice_();
+    const dl = daysLeftFrom(nowMs);
+    const tol = tolFor(dl);
+    const guts = gutsOf(bet, priced.price);
+    const seq = nextSeq(rows, playerId);
+
+    // 欄序必須與 BET_COLS 一致
+    sheet_('bets').appendRow([
+      nowIso_(now), playerId, name, seq, dl, tol,
+      priced.price, bet, guts, priced.src, nonce
+    ]);
+
+    // flush 放在 try 裡、回傳成功之前：若 appendRow 其實沒真正落地，
+    // flush 丟例外會直接落進下面的 catch，回傳 server_error，
+    // 而不是先組好 ok:true 的回應、之後才在 finally 裡默默吞掉例外。
+    // 重試由前端用同一個 nonce 送出，hasRecentNonce 會吸收掉重複寫入。
+    SpreadsheetApp.flush();
+
+    return json_({
+      ok: true, seq: seq, tol: tol, daysLeft: dl,
+      mkt: priced.price, guts: guts,
+      roster: rosterFromRows(betRows_())
+    });
+  } catch (err) {
+    console.error('doPost 拋出例外', err);
+    return json_({ ok: false, reason: 'server_error', message: '伺服器暫時無法使用，請稍後再試' });
+  } finally {
+    // flush 已經移進上面的 try（appendRow 之後、組回應之前）。
+    // 這裡只放鎖：不管成功／失敗／例外，鎖都一定要放，否則會卡住
+    // 之後所有人的下注直到逾時。
+    lock.releaseLock();
+  }
+}

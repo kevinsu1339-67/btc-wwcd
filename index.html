@@ -1,0 +1,1019 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WINNER WINNER CHICKEN DINNER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-void:#0d0a08;
+  --bg-panel:#181009;
+  --bg-card:#221609;
+  --bg-card-hi:#2c1c0d;
+  --gold:#f2b705;
+  --gold-dim:#a87c07;
+  --cream:#f4ecd8;
+  --cream-dim:#c9bfa8;
+  --neon-green:#3dffa0;
+  --neon-red:#ff3b5c;
+  --wood-line:#4a341c;
+  --shadow:0 6px 18px rgba(0,0,0,.45);
+  --font-display:'Alfa Slab One',cursive;
+  --font-body:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+  --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg-void)}
+body{
+  color:var(--cream);font-family:var(--font-body);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;min-height:100vh;
+  background:radial-gradient(ellipse at top,#241407 0%,var(--bg-void) 60%);
+}
+a{color:inherit}
+button{font-family:var(--font-body);cursor:pointer}
+::-webkit-scrollbar{width:0;height:0}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.hidden{display:none !important}
+
+#app{
+  width:100%;max-width:430px;min-height:100vh;position:relative;
+  background:
+    linear-gradient(rgba(13,10,8,.78),rgba(13,10,8,.94)),
+    url('assets/background.jpg') top center/cover no-repeat fixed;
+  border-left:1px solid var(--wood-line);border-right:1px solid var(--wood-line);
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+}
+
+/* ---------- topbar ---------- */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;position:sticky;top:0;z-index:20;
+  background:linear-gradient(#0d0a08 80%,transparent);
+}
+.topbar .brand{font-family:var(--font-mono);font-weight:700;letter-spacing:.08em;font-size:12px;color:var(--gold-dim)}
+
+/* ---------- hero ---------- */
+.hero{margin:4px 14px 18px;padding:18px 14px 16px;border-radius:18px;
+  background:radial-gradient(circle at 30% 0%,#3a2410 0%,var(--bg-panel) 65%);
+  border:2px solid var(--gold-dim);position:relative;overflow:hidden;box-shadow:var(--shadow);
+}
+.marquee{
+  position:absolute;inset:6px;border-radius:12px;pointer-events:none;
+  background-image:radial-gradient(circle,var(--gold) 1.6px,transparent 1.8px);
+  background-size:14px 14px;background-position:0 0;
+  -webkit-mask:linear-gradient(#000,#000) top/100% 3px no-repeat,
+    linear-gradient(#000,#000) bottom/100% 3px no-repeat,
+    linear-gradient(#000,#000) left/3px 100% no-repeat,
+    linear-gradient(#000,#000) right/3px 100% no-repeat;
+  mask:linear-gradient(#000,#000) top/100% 3px no-repeat,
+    linear-gradient(#000,#000) bottom/100% 3px no-repeat,
+    linear-gradient(#000,#000) left/3px 100% no-repeat,
+    linear-gradient(#000,#000) right/3px 100% no-repeat;
+  animation:chase 1.1s linear infinite;opacity:.85;
+}
+@keyframes chase{ to{ background-position:14px 0; } }
+@media (prefers-reduced-motion: reduce){ .marquee{animation:none} }
+.hero-img{width:100%;max-width:320px;display:block;margin:0 auto 10px;border-radius:12px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.55))}
+.hero-emoji{font-size:44px;text-align:center;line-height:1;margin-bottom:4px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+#hero-fallback h1{
+  font-family:var(--font-display);font-weight:400;font-size:22px;line-height:1.2;text-align:center;
+  color:var(--gold);letter-spacing:.01em;text-shadow:0 2px 0 #7a4e04,0 4px 10px rgba(0,0,0,.6);
+}
+.btc-ticker{display:flex;align-items:baseline;justify-content:center;gap:8px;font-family:var(--font-mono)}
+.btc-ticker .sym{font-size:12px;color:var(--cream-dim)}
+.btc-ticker .price{font-size:24px;font-weight:700;color:var(--neon-green)}
+.btc-ticker.stale .price{color:var(--cream-dim)}
+.btc-note{text-align:center;font-size:11px;color:var(--cream-dim);margin-top:4px}
+
+/* ---------- generic section / card ---------- */
+.section{margin:0 14px 16px}
+.section-title{font-size:15px;font-weight:400;font-family:var(--font-display);letter-spacing:.01em;color:var(--gold);margin:0 0 10px}
+.card{background:var(--bg-card);border:1px solid var(--wood-line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
+.empty-note{font-size:12.5px;color:var(--cream-dim);text-align:center;padding:14px 4px}
+
+.summary-bar{display:flex;gap:8px;margin:0 14px 14px}
+.summary-bar .stat{flex:1;background:var(--bg-card);border:1px solid var(--wood-line);border-radius:12px;padding:10px 8px;text-align:center}
+.summary-bar .stat .v{font-family:var(--font-mono);font-size:18px;font-weight:700;color:var(--gold)}
+.summary-bar .stat .l{font-size:10px;color:var(--cream-dim);margin-top:2px}
+.summary-bar .stat.pl-pos .v{color:var(--neon-green)}
+.summary-bar .stat.pl-neg .v{color:var(--neon-red)}
+
+canvas{width:100%;display:block}
+
+/* ---------- 假設結算價滑桿 ---------- */
+.slider-row .lbl-row{display:flex;justify-content:space-between;font-size:12px;color:var(--cream-dim);margin-bottom:4px}
+.slider-row .lbl-row b{color:var(--gold);font-family:var(--font-mono)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;background:transparent;margin:10px 0 2px;accent-color:var(--gold)}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:var(--wood-line)}
+input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:var(--wood-line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+  background:var(--gold);border:3px solid var(--bg-card-hi);margin-top:-10.5px;box-shadow:0 2px 7px rgba(242,183,5,.45)}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--gold);
+  border:3px solid var(--bg-card-hi);box-shadow:0 2px 7px rgba(242,183,5,.45)}
+.ends{display:flex;justify-content:space-between;font-size:10px;color:var(--cream-dim);font-weight:600;font-variant-numeric:tabular-nums;margin-top:4px}
+
+/* ---------- 排行榜 ---------- */
+.rule-text{font-size:12.5px;line-height:1.7;color:var(--cream-dim)}
+.lb-card{position:relative;overflow:hidden;background:var(--bg-card);border:1px solid var(--wood-line);
+  border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.lb-bar{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(242,183,5,.18),transparent)}
+.lb-rank{font-family:var(--font-mono);font-weight:700;color:var(--gold-dim);width:20px;text-align:center;font-size:13px;z-index:1}
+.lb-avatar{width:34px;height:34px;border-radius:50%;background:var(--wood-line);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--gold);z-index:1;flex-shrink:0}
+.lb-mid{flex:1;min-width:0;z-index:1}
+.lb-name{font-weight:700;font-size:14px}
+.lb-sub{font-size:11px;color:var(--cream-dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-right{text-align:right;z-index:1}
+.lb-mult{font-family:var(--font-mono);font-weight:700;font-size:18px}
+.lb-mult.win{color:var(--neon-green);text-shadow:0 0 10px rgba(61,255,160,.5)}
+.lb-mult.lose{color:var(--neon-red);text-shadow:0 0 10px rgba(255,59,92,.4)}
+.lb-chicken{font-size:11px;letter-spacing:-1px}
+
+/* ---------- 遊戲規則 ---------- */
+.rule-flow{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:12px}
+.rule-chip{flex:1;background:var(--bg-card-hi);border:1px solid var(--wood-line);border-radius:10px;padding:8px 4px;text-align:center}
+.rule-chip .ico{font-size:20px}
+.rule-chip .lbl{font-size:11px;color:var(--cream-dim);margin-top:2px}
+.rule-arrow{color:var(--gold-dim);font-size:16px;font-weight:700}
+.rule-item{margin-bottom:10px}
+.rule-desc{font-size:12.5px;font-weight:700;color:var(--gold);line-height:1.6}
+.rule-formula{font-family:var(--font-mono);font-size:11px;color:var(--cream);margin-top:3px;line-height:1.6}
+.rule-divider{border-top:1px dashed var(--wood-line);margin:12px 0}
+.rule-notes{font-size:11.5px;color:var(--cream-dim);line-height:1.8}
+.rule-notes b{color:var(--cream)}
+
+/* ---------- bottom nav ---------- */
+.tabbar{
+  position:fixed;left:50%;bottom:0;transform:translateX(-50%);
+  width:100%;max-width:430px;display:flex;z-index:30;
+  background:var(--bg-panel);border-top:1px solid var(--wood-line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar button{
+  flex:1;background:none;border:none;color:var(--cream-dim);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:10px 0 12px;font-size:11px;font-weight:700;min-height:44px;
+}
+.tabbar button .ico{font-size:19px}
+.tabbar button.active{color:var(--gold)}
+
+/* ---------- 下注頁:1. 這是誰(名單下拉 + PIN,兩者等寬,沿用之前
+   index.html 已驗證過的等寬做法;按鈕保留自己的自然寬度) ---------- */
+.ident-row{display:flex;gap:9px}
+select{
+  width:100%;font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--cream);
+  background:var(--bg-card-hi);border:1px solid var(--wood-line);border-radius:10px;padding:10px 9px;
+  min-height:44px;
+}
+.ident-row select,.ident-row input{
+  flex:1 1 0;min-width:0;font-family:var(--font-body);font-size:15px;font-weight:600;padding:12px;
+  border:1px solid var(--wood-line);border-radius:11px;background:var(--bg-card-hi);color:var(--cream);
+  min-height:44px;
+}
+.ident-row input::placeholder{color:var(--cream-dim);text-align:center}
+.hint-text{font-size:11.5px;color:var(--cream-dim);line-height:1.7;margin-top:10px}
+.msg{font-size:11.5px;font-weight:600;margin-top:9px;min-height:16px;line-height:1.7}
+
+/* ---------- 下注頁:2. 你的預測價(取自參考稿) ---------- */
+.predict-label{font-size:12.5px;color:var(--cream-dim);margin-bottom:6px}
+.predict-input{
+  width:100%;font-family:var(--font-mono);font-size:30px;font-weight:700;color:var(--gold);
+  background:var(--bg-card-hi);border:1px solid var(--gold-dim);border-radius:12px;
+  padding:12px 10px;text-align:center;margin:10px 0 6px;
+}
+.quick-row{display:flex;gap:6px;margin-bottom:10px}
+.quick-row button{flex:1;background:var(--bg-card-hi);border:1px solid var(--wood-line);color:var(--cream);
+  border-radius:8px;padding:9px 0;font-size:13px;min-height:44px}
+.quick-row button:active{background:var(--wood-line)}
+.day-badge{display:inline-block;margin-top:8px;font-size:12px;color:var(--gold);font-family:var(--font-mono);
+  background:var(--bg-card-hi);border:1px solid var(--wood-line);padding:4px 10px;border-radius:8px}
+
+.odds-preview{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.odds-row{display:flex;justify-content:space-between;font-size:12.5px;border-bottom:1px dashed var(--wood-line);padding-bottom:6px}
+.odds-row:last-child{border-bottom:none;padding-bottom:0}
+.odds-row .v{font-family:var(--font-mono);font-weight:700;color:var(--gold)}
+.odds-row.hero{background:var(--bg-card-hi);border-radius:8px;padding:8px 10px;border-bottom:none}
+.odds-row.hero .v{font-size:18px;color:var(--neon-green)}
+
+.primary-btn{
+  width:100%;padding:14px 0;border-radius:12px;border:none;background:var(--gold);
+  color:#221609;font-weight:700;font-size:15px;min-height:48px;
+  box-shadow:0 4px 14px rgba(242,183,5,.35);
+  transition:transform .08s ease,box-shadow .08s ease;
+}
+.primary-btn:active{transform:scale(.97);box-shadow:0 2px 6px rgba(242,183,5,.25)}
+.primary-btn:disabled{background:var(--wood-line);color:var(--cream-dim);box-shadow:none}
+.ghost-btn{
+  width:100%;padding:12px 0;border-radius:12px;border:1px solid var(--wood-line);background:transparent;
+  color:var(--cream-dim);font-size:13px;min-height:44px;margin-top:8px;
+}
+
+/* ---------- 下注確認彈窗(取自參考稿 showConfirmModal) ---------- */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-box{
+  width:100%;max-width:360px;background:var(--bg-panel);border:2px solid var(--gold-dim);border-radius:16px;
+  padding:20px;box-shadow:var(--shadow);max-height:86vh;overflow-y:auto;
+}
+.modal-box h3{font-family:var(--font-display);font-weight:400;color:var(--gold);font-size:18px;margin:0 0 12px;text-align:center}
+.modal-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--wood-line)}
+.modal-row .v{font-family:var(--font-mono);color:var(--gold);font-weight:700}
+.modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+
+.trial-label{font-size:12px;color:var(--cream-dim);text-align:center;margin:14px 0 2px}
+.trial-price{font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:4px}
+.trial-range-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--cream-dim);margin-top:4px}
+.trial-range-labels span:nth-child(2){color:var(--gold);font-weight:700}
+.modal-formula{
+  margin-top:8px;background:#0f0906;border:1px dashed var(--gold-dim);border-radius:10px;
+  padding:10px 12px;font-family:var(--font-mono);font-size:11px;line-height:1.7;color:var(--cream);
+}
+.modal-formula .f-line{margin-bottom:7px}
+.modal-formula .f-line b{color:var(--gold);font-weight:700}
+.modal-formula .f-line.result{color:var(--neon-green);font-weight:700;background:rgba(61,255,160,.08);padding:7px 8px;border-radius:6px}
+.modal-formula .f-note{color:var(--cream-dim);font-size:10.5px;margin-top:6px;line-height:1.6}
+
+.result-card{background:#0f0906;border:1px solid var(--wood-line);border-radius:12px;padding:16px 14px;text-align:center;margin:12px 0 4px}
+.result-mult{font-family:var(--font-mono);font-weight:700;font-size:34px}
+.result-mult.win{color:var(--neon-green);text-shadow:0 0 14px rgba(61,255,160,.55)}
+.result-mult.lose{color:var(--neon-red);text-shadow:0 0 14px rgba(255,59,92,.45)}
+.result-chickens{font-size:26px;margin:4px 0}
+.result-verdict{font-size:12.5px;color:var(--cream-dim);margin-bottom:8px}
+.result-breakdown{border-top:1px dashed var(--wood-line);padding-top:8px;font-size:11.5px;color:var(--cream-dim);line-height:1.9}
+.result-breakdown b{color:var(--gold);font-weight:700}
+</style>
+
+<div id="app"></div>
+
+<script src="src/lib.js"></script>
+<script src="src/api.js"></script>
+<script>
+'use strict';
+
+/* =========================================================================
+   WINNER WINNER CHICKEN DINNER — 戰況頁（Task A）
+   資料來源改為 Google Sheet：src/api.js 打 doGet/doPost，計分公式一律呼叫
+   src/lib.js 的 multOf / gutsOf，不重寫公式。下注頁在 Task B 才會實作，
+   這裡先留一個「整理中」的占位內容，分頁按鈕保留讓版面完整。
+   ========================================================================= */
+
+const API_URL = 'https://script.google.com/macros/s/AKfycbz96sNqUTzyxmVymm9G1R0TYAcYjYX2Vb5wxM-ZswwGAez3SVYdXQvs8i695XrRYODw/exec';
+const api = ChickenApi.createApi({ url: API_URL });
+
+// 圖表時間軸固定範圍（開賽日 → 結算時刻），不隨資料量或滑桿變動而跳動。
+const T0 = Date.parse('2026-08-26T00:00:00+08:00');
+const T1 = SETTLE_MS; // 來自 src/lib.js
+// 戰況頁「假設結算價」滑桿的固定範圍。用固定值而非隨市價浮動,讓拖曳的
+// 尺度不會每次重新整理都變——沿用目前 index.html 已驗證過的做法。
+const SLIDER_LO = 30000, SLIDER_HI = 120000;
+
+const $ = id => document.getElementById(id);
+const fmtMoney = n => Math.round(n).toLocaleString('en-US');
+const fmtMD = ms => { const d = new Date(ms); return (d.getMonth() + 1) + '/' + String(d.getDate()).padStart(2, '0'); };
+const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+
+let S = { mkt: 0, tol: 0, daysLeft: 0, closed: false, roster: [], serverTime: '', src: '' };
+let klines = [];       // 走勢線資料，來自 loadKlines()（Coinbase）
+let pollTimer = null;
+
+const state = {
+  tab: 'home',
+  bets: [],            // 由 betsFromRoster(S.roster) 填入，見 refresh()
+  assumedSettle: null, // 戰況頁「假設結算價」滑桿目前值
+  connMsg: '連線中…',
+  connBad: false,
+
+  // ---- 下注頁(Task B) ----
+  bet: { name: '', pin: '', predict: null }, // 下注頁暫存(名字/PIN/預測價)
+  mine: null,          // 目前選的名字若已出現在 roster 裡，用來切換「下注／改注」文字
+  betMsg: '',          // 下注頁提示訊息
+  betMsgBad: false,
+  betBusy: false,      // 送出進行中，避免重複點擊
+  pendingBet: null,     // 上次送出失敗、暫存在 localStorage 的下注(見 boot())
+};
+
+/* ---------------------------------------------------------------------
+   資料層適配器：把 doGet 回傳的 roster 換成戰況頁要的 bet 紀錄格式。
+   roster 每筆已經是「這個人最新一筆」（src/lib.js 的 rosterFromRows 只留
+   seq 最大的那筆），欄位對應見遷移計畫文件。
+   --------------------------------------------------------------------- */
+function betsFromRoster(roster) {
+  return roster.map(r => {
+    const ts = Date.parse(r.ts);
+    return {
+      name: r.name,
+      predict: r.bet,
+      marketAtBet: r.mkt,
+      dateStr: isNaN(ts) ? '—' : fmtMD(ts),  // 僅供顯示
+      ts,
+      allowance: r.tol
+    };
+  });
+}
+
+/* 結算價：截止前用戰況頁的假設滑桿,尚未同步過伺服器時退回 0（畫面顯示同步中）。 */
+function currentSettlePrice() {
+  return state.assumedSettle != null ? state.assumedSettle : (S.mkt || 0);
+}
+
+/* 幫每筆下注即時算出膽量與倍數（用目前假設的結算價）。
+   ⚠️ allowance 一律直接用記錄裡的 b.allowance（來源是伺服器的 roster[].tol），
+   絕對不可以用 dateStr 反推查表。下注日是伺服器蓋的時間戳，前端如果用本地
+   日期反推天數再查容許值表，會在時區與跨午夜的邊界跟伺服器算的對不上——
+   例如玩家在 9/09 23:59（UTC+8）下注，前端若因時區把日期算成 9/10，就會
+   少算一級容許值，戰況頁排行榜顯示的倍數就會跟 Sheet 實際記錄、以及最終
+   結算算出來的結果不一致。不要「簡化」成用 dateStr 查表。 */
+function computeAllResults(settlePrice) {
+  return state.bets.map(b => {
+    const allowance = b.allowance;
+    const courage = gutsOf(b.predict, b.marketAtBet);
+    const multiplier = multOf(b.predict, b.marketAtBet, settlePrice, allowance);
+    return { ...b, allowance, courage, multiplier };
+  }).sort((a, b) => b.multiplier - a.multiplier);
+}
+
+/* =========================================================================
+   畫面渲染
+   ========================================================================= */
+const app = $('app');
+
+function render() {
+  app.innerHTML = `
+    ${renderTopbar()}
+    ${state.tab === 'home' ? renderHomeContent() : renderBetContent()}
+    ${renderTabbar()}
+  `;
+  bindGlobalEvents();
+  if (state.tab === 'home') afterHomeRender();
+  if (state.tab === 'bet') afterBetRender();
+}
+
+function renderTopbar() {
+  return `<div class="topbar"><div class="brand">🍗 WWCD · BTC 預測賽</div></div>`;
+}
+
+function renderTabbar() {
+  return `
+  <div class="tabbar">
+    <button data-tab="home" class="${state.tab === 'home' ? 'active' : ''}"><span class="ico">📊</span>戰況</button>
+    <button data-tab="bet" class="${state.tab === 'bet' ? 'active' : ''}"><span class="ico">🍗</span>下注</button>
+  </div>`;
+}
+
+/* ---------------- 戰況 ---------------- */
+function summaryBarHtml(betCount, winCount, hostPL) {
+  return `
+    <div class="stat" style="background-color:#00000080"><div class="v">${betCount}</div><div class="l">餐點池(人份)</div></div>
+    <div class="stat" style="background-color:#00000080"><div class="v">${winCount}</div><div class="l">1.0× 以上</div></div>
+    <div class="stat ${hostPL >= 0 ? 'pl-pos' : 'pl-neg'}" style="background-color:#00000080"><div class="v">${hostPL >= 0 ? '+' : ''}${hostPL.toFixed(2)}</div><div class="l">主辦盈虧</div></div>
+  `;
+}
+
+function leaderboardHtml(results) {
+  if (!results.length) {
+    return `<div class="card"><div class="empty-note">目前還沒有人下注,快去「下注」分頁卡位</div></div>`;
+  }
+  return results.map((r, i) => {
+    const chickens = '🍗'.repeat(Math.floor(r.multiplier)) + (r.multiplier % 1 >= 0.5 ? '🍗' : '');
+    const barW = Math.min(100, r.multiplier / (results[0].multiplier || 1) * 100);
+    return `
+    <div class="lb-card">
+      <div class="lb-bar" style="width:${barW}%"></div>
+      <div class="lb-rank">${i + 1}</div>
+      <div class="lb-avatar">${esc(r.name.slice(0, 1))}</div>
+      <div class="lb-mid">
+        <div class="lb-name">${esc(r.name)}</div>
+        <div class="lb-sub">${r.dateStr} · 押 $${fmtMoney(r.predict)} · 膽量 ${r.courage.toFixed(1)}% · 容許 ±${r.allowance}%</div>
+      </div>
+      <div class="lb-right">
+        <div class="lb-mult ${r.multiplier >= 1 ? 'win' : 'lose'}">${r.multiplier.toFixed(2)}×</div>
+        <div class="lb-chicken">${chickens || '—'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHomeContent() {
+  const settle = currentSettlePrice();
+  const results = computeAllResults(settle);
+  const betCount = state.bets.length;
+  const winCount = results.filter(r => r.multiplier >= 1).length;
+  const totalMultiplierSum = results.reduce((s, r) => s + r.multiplier, 0);
+  const hostPL = betCount - totalMultiplierSum;
+  const stale = S.src === 'fallback';
+
+  return `
+  <div class="hero">
+    <div class="marquee"></div>
+    <img src="assets/logo.png" alt="WINNER WINNER CHICKEN DINNER" class="hero-img" id="hero-logo"
+      onerror="this.style.display='none'; document.getElementById('hero-fallback')?.classList.remove('hidden');">
+    <div id="hero-fallback" class="hidden">
+      <div class="hero-emoji">🍗</div>
+      <h1>WINNER WINNER<br>CHICKEN DINNER</h1>
+    </div>
+    <div class="btc-ticker ${stale ? 'stale' : ''}" id="btc-ticker">
+      <span class="sym">BTC/USD</span>
+      <span class="price" id="hero-price">${S.mkt ? '$' + fmtMoney(S.mkt) : '同步中…'}</span>
+    </div>
+    <div class="btc-note" id="btc-note">${stale ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格' : 'Coinbase Exchange · 9/11 00:00(UTC+8)開盤結算'}</div>
+  </div>
+
+  <div class="summary-bar" id="summary-bar">${summaryBarHtml(betCount, winCount, hostPL)}</div>
+
+  <div class="section">
+    <div class="section-title">📈 誰押在哪裡</div>
+    <div class="card"><canvas id="scatter-canvas" height="180"></canvas></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🎚️ 假設結算價(拖動看排名怎麼變)</div>
+    <div class="card">
+      <div class="slider-row">
+        <div class="lbl-row"><span>假設 9/11 開出</span><b id="assume-val">$${fmtMoney(settle)}</b></div>
+        <input type="range" id="assume-slider" min="${SLIDER_LO}" max="${SLIDER_HI}" step="250" value="${Math.round(settle)}" aria-label="假設結算價">
+        <div class="ends"><span>${fmtMoney(SLIDER_LO)}</span><span>${fmtMoney(SLIDER_HI)}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏆 排行榜</div>
+    <div class="card" style="margin-bottom:8px">
+      <div class="rule-text" id="conn">${state.connMsg}</div>
+      <div class="rule-text">依上面的假設結算價即時重排</div>
+    </div>
+    <div id="leaderboard-list">${leaderboardHtml(results)}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📖 遊戲規則</div>
+    <div class="card">
+      <div class="rule-flow">
+        <div class="rule-chip"><div class="ico">😤</div><div class="lbl">膽量%</div></div>
+        <div class="rule-arrow">×</div>
+        <div class="rule-chip"><div class="ico">🎯</div><div class="lbl">誤差%</div></div>
+        <div class="rule-arrow">÷</div>
+        <div class="rule-chip"><div class="ico">📏</div><div class="lbl">容許值</div></div>
+        <div class="rule-arrow">=</div>
+        <div class="rule-chip"><div class="ico">🍗</div><div class="lbl">餐點倍數</div></div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-desc">😤 膽量:猜得離下注當天市價越遠,倍數越高。</div>
+        <div class="rule-formula">膽量(%) = |預測價 − 下注當天市價| ÷ 下注當天市價 × 100</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-desc">🎯 誤差:猜得離結算價越近,扣分越少。</div>
+        <div class="rule-formula">誤差(%) = |預測價 − 結算價| ÷ 結算價 × 100</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-desc">📏 容許值:越早下注,可容許的誤差越大 — 這是早鳥優勢。</div>
+        <div class="rule-formula">容許值 = round(6 × √剩餘天數)</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-desc">🍗 餐點倍數:膽量加分、誤差扣分,兩者相乘算出最終倍率。</div>
+        <div class="rule-formula">餐點倍數 = max(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
+      </div>
+      <div class="rule-divider"></div>
+      <div class="rule-notes">
+        結算 = <b>Coinbase Exchange BTC-USD</b>,2026/09/11 00:00(UTC+8)開盤價。<br>
+        截止前可隨時改注,計分只看最新一筆,但每次送出都會留下紀錄。
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function afterHomeRender() {
+  const slider = $('assume-slider');
+  if (slider) {
+    slider.addEventListener('input', e => {
+      state.assumedSettle = Number(e.target.value);
+      $('assume-val').textContent = '$' + fmtMoney(state.assumedSettle);
+      updateHomeDynamic();
+    });
+  }
+  drawScatterChart();
+}
+
+/* 只更新統計/排行榜/走勢圖/連線狀態,不重繪整頁——拖動假設結算價滑桿時,或
+   30 秒輪詢收到新資料時,若整頁重繪會把使用者正在操作中的 range input
+   元素整個換掉,拖曳會被瀏覽器判定為中斷。所有元素都用 if(el) 保護,
+   使用者切到「下注」分頁時這些 id 不存在,呼叫不會報錯。 */
+function updateHomeDynamic() {
+  const heroPrice = $('hero-price');
+  if (heroPrice) heroPrice.textContent = S.mkt ? '$' + fmtMoney(S.mkt) : '同步中…';
+  const ticker = $('btc-ticker');
+  if (ticker) ticker.classList.toggle('stale', S.src === 'fallback');
+  const note = $('btc-note');
+  if (note) note.textContent = S.src === 'fallback'
+    ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格'
+    : 'Coinbase Exchange · 9/11 00:00(UTC+8)開盤結算';
+
+  const connEl = $('conn');
+  if (connEl) {
+    connEl.textContent = state.connMsg;
+    connEl.style.color = state.connBad ? 'var(--neon-red)' : 'var(--cream-dim)';
+  }
+
+  const settle = currentSettlePrice();
+  const results = computeAllResults(settle);
+  const betCount = state.bets.length;
+  const winCount = results.filter(r => r.multiplier >= 1).length;
+  const totalMultiplierSum = results.reduce((s, r) => s + r.multiplier, 0);
+  const hostPL = betCount - totalMultiplierSum;
+
+  const summaryEl = $('summary-bar');
+  if (summaryEl) summaryEl.innerHTML = summaryBarHtml(betCount, winCount, hostPL);
+
+  const lbList = $('leaderboard-list');
+  if (lbList) lbList.innerHTML = leaderboardHtml(results);
+
+  drawScatterChart();
+}
+
+/* 下注分布圖:BTC 走勢線(來自 klines,Coinbase)+ 每人一個點 + 虛線回到
+   走勢線(長度=膽量)。橫軸固定在開賽日(T0)到結算時刻(T1),不隨資料量
+   變動,座標系才不會因為滑桿或輪詢跳動。 */
+function drawScatterChart() {
+  const canvas = $('scatter-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.clientWidth * 2; // retina
+  const H = canvas.height = 180 * 2;
+  const pad = { l: 50 * 2, r: 14 * 2, t: 14 * 2, b: 26 * 2 };
+
+  ctx.clearRect(0, 0, W, H);
+  const prices = klines.map(k => k.close)
+    .concat(state.bets.flatMap(b => [b.predict, b.marketAtBet]))
+    .filter(v => v > 0);
+  if (!prices.length) return;
+  const minP = Math.min(...prices) * 0.97;
+  const maxP = Math.max(...prices) * 1.03;
+
+  const X = t => pad.l + (Math.min(Math.max(t, T0), T1) - T0) / (T1 - T0 || 1) * (W - pad.l - pad.r);
+  const Y = p => H - pad.b - (p - minP) / (maxP - minP || 1) * (H - pad.t - pad.b);
+
+  ctx.font = (11 * 2) + 'px JetBrains Mono, monospace';
+  ctx.strokeStyle = '#4a341c';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 2; i++) {
+    const p = minP + (maxP - minP) * i / 2;
+    const y = Y(p);
+    ctx.globalAlpha = .5; ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#c9bfa8';
+    ctx.fillText('$' + Math.round(p / 1000) + 'k', 4, y + 4 * 2);
+  }
+
+  if (klines.length > 1) {
+    ctx.beginPath();
+    klines.forEach((k, i) => { const x = X(k.t), y = Y(k.close); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+    ctx.strokeStyle = '#f2b705'; ctx.lineWidth = 2 * 2; ctx.stroke();
+  }
+
+  ctx.fillStyle = '#c9bfa8';
+  ctx.fillText('8/26', pad.l - 6, H - 6);
+  ctx.fillText('9/11', W - pad.r - 30, H - 6);
+
+  const settle = currentSettlePrice();
+  state.bets.forEach(b => {
+    if (isNaN(b.ts)) return;
+    const x = X(b.ts);
+    const yDot = Y(b.predict);
+    const yTrend = Y(b.marketAtBet);
+    const m = multOf(b.predict, b.marketAtBet, settle, b.allowance);
+    ctx.setLineDash([4 * 2, 3 * 2]);
+    ctx.strokeStyle = '#a87c07'; ctx.lineWidth = 1.5 * 2;
+    ctx.beginPath(); ctx.moveTo(x, yDot); ctx.lineTo(x, yTrend); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(x, yDot, 5 * 2, 0, Math.PI * 2);
+    ctx.fillStyle = m >= 1 ? '#3dffa0' : '#ff3b5c';
+    ctx.fill();
+  });
+}
+
+/* ---------------- 下注(Task B) ----------------
+   版面沿用參考稿「2. 你的預測價」區塊(大數字、滑桿、微調按鈕、賠率預覽),
+   「1. 這是誰」則依主辦人要求換成名單下拉 + PIN,取代參考稿的員工編號輸入。
+   送出流程(submitBet／resend／改注文字切換／下拉名單)是從 92493fd 版
+   index.html 逐字搬過來的行為,那個版本經過四輪 code review 才把這幾處
+   邊界情況修對,這裡不重新發明,只是把 DOM 操作風格改寫成本檔案 Task A
+   建立的「render() 回傳字串樣板」寫法。 */
+
+// 名字下拉選項:第一項是空白占位,逼玩家主動選,避免有人沒注意就用了
+// 名單第一位的名字下注。對應 92493fd 版的 fillNames()。
+function nameOptionsHtml() {
+  let html = '<option value="">— 選你的名字 —</option>';
+  ROSTER.forEach(n => {
+    html += `<option value="${esc(n)}" ${state.bet.name === n ? 'selected' : ''}>${esc(n)}</option>`;
+  });
+  return html;
+}
+
+// 依下拉選單目前選的名字,判斷這個人是不是已經在 roster(伺服器資料)裡,
+// 決定送出按鈕要顯示「下注」還是「改注」。用正規化後的名字比對(normalizeName,
+// 來自 src/lib.js),不能用原始字串相等——否則「阿明」跟「 阿明 」會被當成
+// 兩個人,選了自己的名字卻還是顯示「下注」。逐字對應 92493fd 版的 updateMine()。
+function updateMine(selectedName) {
+  if (!selectedName) { state.mine = null; return; }
+  state.mine = { name: selectedName };
+  const found = S.roster.some(r => normalizeName(r.name) === normalizeName(selectedName));
+  if (!found) state.mine = null;
+}
+
+// 🍗 x 份的顯示用小工具(純顯示,不是計分公式)。
+function drum(k) {
+  const whole = Math.floor(k), frac = k - whole;
+  let s = '🍗'.repeat(Math.max(0, whole));
+  if (frac > 0.05) s += `<span style="opacity:${Math.max(.35, frac).toFixed(2)}">🍗</span>`;
+  return s || '—';
+}
+
+function renderBetContent() {
+  const mkt = S.mkt, tol = S.tol;
+  const predict = state.bet.predict != null ? state.bet.predict : Math.round(mkt || 0);
+  // 「結算價剛好等於預測價」情境:誤差為 0,用 multOf 本身算,不重寫公式。
+  const hitMult = mkt ? multOf(predict, mkt, predict, tol) : 0;
+  const btnLabel = state.mine ? '改注' : '下注';
+  const submitDisabled = !mkt || S.closed || state.betBusy;
+
+  // 訊息區優先順序:上次沒送出成功的暫存 > 已截止 > 一般提示訊息。
+  let msgHtml = '';
+  if (state.pendingBet) {
+    msgHtml = `
+      <div class="msg" style="color:var(--neon-red)">
+        你有一筆 $${fmtMoney(state.pendingBet.bet)} 沒送出成功。
+        <button class="ghost-btn" id="resend-bet" style="width:auto;display:inline-block;margin-top:8px;margin-right:6px;padding:8px 14px">重送</button>
+        <button class="ghost-btn" id="drop-bet" style="width:auto;display:inline-block;margin-top:8px;padding:8px 14px">丟掉</button>
+      </div>`;
+  } else if (S.closed) {
+    msgHtml = `<div class="msg" id="bet-msg" style="color:var(--neon-red)">已於 9/11 00:00 截止,不能再改了。</div>`;
+  } else if (state.betMsg) {
+    msgHtml = `<div class="msg" id="bet-msg" style="color:${state.betMsgBad ? 'var(--neon-red)' : 'var(--gold)'}">${esc(state.betMsg)}</div>`;
+  } else {
+    msgHtml = `<div class="msg" id="bet-msg"></div>`;
+  }
+
+  return `
+  <div class="section"><div class="section-title">🍗 我要下注</div></div>
+
+  <div class="section">
+    <div class="section-title">1. 這是誰</div>
+    <div class="card">
+      <div class="ident-row">
+        <select id="name" aria-label="你的名字">${nameOptionsHtml()}</select>
+        <input type="text" id="pin" placeholder="PIN" inputmode="numeric" maxlength="6"
+               aria-label="4 到 6 位數 PIN" value="${esc(state.bet.pin || '')}">
+      </div>
+      <button class="primary-btn" id="submit-bet" style="margin-top:10px" ${submitDisabled ? 'disabled' : ''}>${btnLabel}</button>
+      <p class="hint-text">首次下注請設定並記住 4 到 6 位數字 PIN 碼，若之後要改注需填入才能改注。</p>
+      ${msgHtml}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. 你的預測價(9/11 結算價)</div>
+    <div class="card">
+      <div class="predict-label">我預測 9/11 BTC 價格為...</div>
+      <input type="text" inputmode="numeric" class="predict-input" id="predict-input" value="${fmtMoney(predict)}">
+      <input type="range" id="predict-slider" min="${SLIDER_LO}" max="${SLIDER_HI}" step="100" value="${Math.round(predict)}" aria-label="調整預測價格">
+      <!-- 滑桿範圍固定在 3 萬到 12 萬,市價不再是滑桿中點,所以中間直接把
+           市價標出來當參考點——否則玩家看不出自己拖到的位置離市價多遠。
+           沿用 92493fd 版 drawCurve() 旁的註解與做法。 -->
+      <div class="ends">
+        <span>${fmtMoney(SLIDER_LO)}</span>
+        <span>市價 $${mkt ? fmtMoney(mkt) : '—'}</span>
+        <span>${fmtMoney(SLIDER_HI)}</span>
+      </div>
+      <div class="quick-row">
+        <button type="button" data-delta="-2000">−2000</button>
+        <button type="button" data-delta="-500">−500</button>
+        <button type="button" data-delta="500">+500</button>
+        <button type="button" data-delta="2000">+2000</button>
+      </div>
+      <div class="day-badge" id="days-badge">今天市價 $${mkt ? fmtMoney(mkt) : '—'} · 容許值 ±${tol || 0}% · 距結算還有 ${S.daysLeft || 0} 天</div>
+      <div class="odds-preview">
+        <div class="odds-row hero"><span>結算價「剛好等於」你的預測</span><span class="v" id="hit-mult">${hitMult.toFixed(2)}×</span></div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function syncPredict(num) {
+  num = Math.min(SLIDER_HI, Math.max(SLIDER_LO, num || 0));
+  state.bet.predict = num;
+  const predictInput = $('predict-input');
+  const predictSlider = $('predict-slider');
+  if (predictInput) predictInput.value = num ? fmtMoney(num) : '';
+  if (predictSlider) predictSlider.value = num;
+  updateBetDynamic();
+}
+
+/* 只更新下注頁裡「不是使用者正在拖拉/輸入的那個元素」,呼叫時機:
+   (a) 30 秒輪詢／視窗恢復可見時的 refresh() —— S.mkt、S.tol、S.daysLeft
+       可能變了,但不能把使用者正在打字的 name/pin/predict-input 整個
+       換掉,否則輸入會被中斷(沿用戰況頁 updateHomeDynamic() 的做法);
+   (b) 使用者自己拖滑桿/點微調按鈕時,即時更新賠率預覽。
+   所有元素都用 if(el) 保護——使用者在「戰況」分頁時這些 id 不存在。 */
+function updateBetDynamic() {
+  const badge = $('days-badge');
+  if (badge) badge.textContent = `今天市價 $${S.mkt ? fmtMoney(S.mkt) : '—'} · 容許值 ±${S.tol || 0}% · 距結算還有 ${S.daysLeft || 0} 天`;
+
+  const hitEl = $('hit-mult');
+  if (hitEl) {
+    const predict = state.bet.predict;
+    const m = (S.mkt && predict) ? multOf(predict, S.mkt, predict, S.tol) : 0;
+    hitEl.textContent = m.toFixed(2) + '×';
+  }
+
+  const btn = $('submit-bet');
+  if (btn) {
+    btn.textContent = state.mine ? '改注' : '下注';
+    btn.disabled = !S.mkt || S.closed || state.betBusy;
+  }
+
+  const msgEl = $('bet-msg');
+  if (msgEl && S.closed) {
+    msgEl.textContent = '已於 9/11 00:00 截止,不能再改了。';
+    msgEl.style.color = 'var(--neon-red)';
+  }
+}
+
+function afterBetRender() {
+  const nameSel = $('name');
+  if (nameSel) {
+    nameSel.addEventListener('change', () => {
+      state.bet.name = nameSel.value;
+      updateMine(nameSel.value);
+      render(); // 選擇的名字要換算「下注／改注」文字，整頁重繪一次沒關係(離散事件，非連續拖曳)
+    });
+  }
+
+  const pinInput = $('pin');
+  if (pinInput) {
+    pinInput.addEventListener('input', e => {
+      const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+      e.target.value = digits;
+      state.bet.pin = digits;
+    });
+  }
+
+  const predictInput = $('predict-input');
+  if (predictInput) {
+    predictInput.addEventListener('input', e => {
+      const digits = e.target.value.replace(/[^0-9]/g, '');
+      const num = Math.min(SLIDER_HI, Math.max(SLIDER_LO, Number(digits) || 0));
+      state.bet.predict = num;
+      e.target.value = num ? num.toLocaleString('en-US') : '';
+      const slider = $('predict-slider');
+      if (slider) slider.value = num;
+      updateBetDynamic();
+    });
+  }
+
+  const predictSlider = $('predict-slider');
+  if (predictSlider) {
+    predictSlider.addEventListener('input', e => syncPredict(Number(e.target.value)));
+  }
+
+  document.querySelectorAll('.quick-row button').forEach(btn => {
+    btn.addEventListener('click', () => syncPredict((state.bet.predict || 0) + Number(btn.dataset.delta)));
+  });
+
+  $('submit-bet')?.addEventListener('click', onSubmitBet);
+
+  $('resend-bet')?.addEventListener('click', () => submitBet(state.pendingBet));
+  $('drop-bet')?.addEventListener('click', () => {
+    api.clearPending();
+    state.pendingBet = null;
+    render();
+  });
+
+  updateBetDynamic();
+}
+
+function onSubmitBet() {
+  const name = state.bet.name || '';
+  const pin = (state.bet.pin || '').trim();
+  state.betMsgBad = true;
+
+  if (!name) { state.betMsg = '先從選單選你的名字。'; render(); $('name')?.focus(); return; }
+  // PIN 檢查與伺服器同一套規則(/^\d{4,6}$/),失敗訊息用繁中講清楚。
+  if (!/^\d{4,6}$/.test(pin)) { state.betMsg = 'PIN 要 4 到 6 位數字。'; render(); $('pin')?.focus(); return; }
+  const bet = state.bet.predict;
+  if (!bet || bet <= 0) { state.betMsg = '預測價不能是 0 或空白,請輸入一個合理的數字。'; render(); return; }
+  if (!S.mkt) { state.betMsg = '抓不到市價,請稍後再試一次。'; render(); return; }
+
+  showConfirmModal({ name, pin, bet });
+}
+
+/* ===== 送出下注(逐字對應 92493fd 版的 submitBet,只有 DOM 操作風格改成
+   本檔案的 state + render() 寫法):
+   - 每個失敗路徑都要在 finally 裡明確恢復按鈕,不能只靠 render()——
+     這是舊版經過 code review 找出來的 bug:當時的 render() 在 S.mkt
+     為 0 時會提前 return，恢復按鈕的程式碼永遠不會被跑到。本檔案的
+     render() 不會提前 return(一定會產生完整的下注頁 HTML)，但為了不
+     讓行為出現任何一絲差異，仍然在 finally 裡明確設一次按鈕狀態，
+     再呼叫 render()。
+   - resend 時傳進來的 payload(pending)要原封不動送給 api.placeBet，
+     讓 src/api.js 沿用同一個 nonce——伺服器的冪等檢查靠的就是這個
+     nonce 沒被換掉，絕對不能在這裡重新產生一個。 ===== */
+async function submitBet(payload) {
+  state.betBusy = true;
+  const btn = $('submit-bet');
+  if (btn) btn.disabled = true;
+  try {
+    const res = await api.placeBet(payload);
+    if (!res.ok) {
+      // 伺服器有回應但拒絕:輸入全部保留,讓玩家改完再送。
+      state.betMsg = res.message || ('送出被拒:' + res.reason);
+      state.betMsgBad = true;
+      return false;
+    }
+    api.saveMe(payload.name, payload.pin);
+    state.bet.name = payload.name;
+    state.bet.pin = payload.pin;
+    state.pendingBet = null;
+    updateMine(payload.name);
+    state.betMsgBad = false;
+    state.betMsg = res.duplicate
+      ? '這筆剛剛已經送出過了,沒有重複記錄。'
+      : `${payload.name} 押 $${fmtMoney(payload.bet)} 已入場(第 ${res.seq} 次送出)。截止前還可以再改。`;
+    await refresh();
+    return true;
+  } catch (err) {
+    // 送不出去:api.js 已經把這筆(含原本的 nonce)暫存進 localStorage,
+    // 這裡重新讀一次讓畫面上的「重送」按鈕跟儲存的內容保持一致。
+    state.pendingBet = api.loadPending();
+    state.betMsgBad = true;
+    state.betMsg = '送不出去(' + err.message + ')。已幫你存起來,連上網後按一次「重送」。';
+    return false;
+  } finally {
+    state.betBusy = false;
+    // 明確還原按鈕狀態,再呼叫 render()——見上方函式註解。
+    if (btn) btn.disabled = state.betBusy || S.closed;
+    render();
+  }
+}
+
+/* ===== 下注確認彈窗(取自參考稿 showConfirmModal,含拖曳試算滑桿):
+   - 拿掉「下注日」欄位,改成註明日期由伺服器蓋章
+   - 標題與內文註明截止前都還能再改注
+   - 「送出下注」呼叫 submitBet();「取消」單純關掉彈窗,不送出任何東西 ===== */
+function showConfirmModal(record) {
+  const mkt = S.mkt, tol = S.tol;
+  const sliderMin = Math.round(mkt * 0.75), sliderMax = Math.round(mkt * 1.25);
+  const initial = mkt;
+
+  const mask = document.createElement('div');
+  mask.className = 'modal-mask';
+  mask.innerHTML = `
+    <div class="modal-box">
+      <h3>🍗 確認下注(截止前都能再改)</h3>
+      <div class="modal-row"><span>名字</span><span class="v">${esc(record.name)}</span></div>
+      <div class="modal-row"><span>你的預測價</span><span class="v">$${fmtMoney(record.bet)}</span></div>
+      <div class="modal-row"><span>下注日</span><span class="v">送出時由伺服器自動蓋章</span></div>
+
+      <div class="trial-label">拖拉試算 9/11 BTC 各價位,你的餐點倍數是多少</div>
+      <div class="trial-price" id="modal-settle-val">$${fmtMoney(initial)}</div>
+      <input type="range" id="modal-settle-slider" min="${sliderMin}" max="${sliderMax}" value="${Math.round(initial)}" step="10" aria-label="試算結算價">
+      <div class="trial-range-labels"><span>$${fmtMoney(sliderMin)}</span><span>今日市價</span><span>$${fmtMoney(sliderMax)}</span></div>
+
+      <div class="result-card">
+        <div class="result-mult" id="result-mult">--×</div>
+        <div class="result-chickens" id="result-chickens"></div>
+        <div class="result-verdict" id="result-verdict"></div>
+        <div class="result-breakdown" id="result-breakdown"></div>
+      </div>
+
+      <div class="modal-formula">
+        <div class="f-line">😤 <b>膽量(%)</b> = |預測價 − 下注當天市價| ÷ 下注當天市價 × 100</div>
+        <div class="f-line">🎯 <b>誤差(%)</b> = |預測價 − 結算價| ÷ 結算價 × 100</div>
+        <div class="f-line">📏 <b>容許值</b> = round(6 × √距結算天數)</div>
+        <div class="f-line result">🍗 <b>餐點倍數</b> = max(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
+        <div class="f-note">算出負數就當 0。截止前(9/11 00:00 UTC+8)可以隨時回來改注,計分只看最新一筆,但每次送出都會留下紀錄。</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="primary-btn" id="confirm-ok">送出下注</button>
+        <button class="ghost-btn" id="confirm-cancel">取消,返回修改</button>
+      </div>
+    </div>`;
+  document.body.appendChild(mask);
+
+  // 試算用的膽量／倍數一律呼叫 gutsOf/multOf(src/lib.js),不重寫公式、不留
+  // 第二份算式。原參考稿的拆解文字(膽量加分到多少、誤差保留多少)需要
+  // multOf 內部沒有對外暴露的中繼值,若要秀出那兩個數字就得在這裡重新兜一次
+  // (1+膽量/10)、(1-誤差/容許值),等於是公式的第二份副本,因此拆解說明改成
+  // 只展示 gutsOf/multOf 兩個函式各自算出來的值。
+  const updateModalMult = (settlePrice) => {
+    const courage = gutsOf(record.bet, mkt);
+    const mult = multOf(record.bet, mkt, settlePrice, tol);
+
+    const el = document.getElementById('result-mult');
+    el.textContent = mult.toFixed(2) + '×';
+    el.className = 'result-mult ' + (mult >= 1 ? 'win' : 'lose');
+
+    document.getElementById('result-chickens').innerHTML = drum(mult);
+
+    document.getElementById('result-verdict').textContent =
+      mult >= 1 ? '份餐點 — 有賺到' : (mult > 0 ? '份餐點 — 有賠到' : '份餐點 — 槓龜,一場空');
+
+    document.getElementById('result-breakdown').innerHTML =
+      `膽量 ${courage.toFixed(2)}%,容許值 ±${tol}%<br>` +
+      `餐點倍數 = <b>${mult.toFixed(2)}</b>`;
+  };
+  updateModalMult(initial);
+  document.getElementById('modal-settle-slider').addEventListener('input', e => {
+    const v = Number(e.target.value);
+    document.getElementById('modal-settle-val').textContent = '$' + fmtMoney(v);
+    updateModalMult(v);
+  });
+
+  mask.querySelector('#confirm-ok').addEventListener('click', () => {
+    document.body.removeChild(mask);
+    submitBet({ name: record.name, pin: record.pin, bet: Number(record.bet) });
+  });
+  mask.querySelector('#confirm-cancel').addEventListener('click', () => {
+    document.body.removeChild(mask);
+  });
+}
+
+/* ---------------------------------------------------------------------
+   全域事件(分頁切換)
+   --------------------------------------------------------------------- */
+function bindGlobalEvents() {
+  document.querySelectorAll('.tabbar button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.tab = btn.dataset.tab;
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+
+/* ===== 狀態同步(沿用目前 index.html 已驗證過的模式) ===== */
+async function refresh() {
+  try {
+    const s = await api.getState();
+    if (!s.ok) throw new Error(s.message || '伺服器回報錯誤');
+    S = s;
+    state.bets = betsFromRoster(S.roster);
+    if (state.assumedSettle == null) state.assumedSettle = Math.round(S.mkt);
+    // 下注頁的預測價初值 = 市價,只在第一次抓到市價時設定一次,
+    // 之後就是使用者自己的輸入,不能被輪詢覆寫掉。
+    if (state.bet.predict == null) state.bet.predict = Math.round(S.mkt || 0);
+    state.connMsg = S.src === 'fallback'
+      ? '市價暫時抓不到,顯示的是最後一次成功的價格。'
+      : `已同步 · 市價 $${fmtMoney(S.mkt)} · 剩 ${S.daysLeft} 天`;
+    state.connBad = S.src === 'fallback';
+  } catch (err) {
+    state.connMsg = '連線不到伺服器,畫面可能不是最新的。' + err.message;
+    state.connBad = true;
+  }
+  updateHomeDynamic();
+  updateBetDynamic();
+}
+
+/* ===== 走勢線:向 Coinbase Exchange 取,唯讀公開資料,不影響計分。
+   計分用的市價一律走伺服器(S.mkt),不是這裡抓到的。 ===== */
+async function loadKlines() {
+  try {
+    // granularity 單位是秒,86400 = 日線。
+    const res = await fetch('https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=86400');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+    if (!Array.isArray(raw) || !raw.length) throw new Error('回應格式不對');
+    // Coinbase 回 [time, low, high, open, close, volume],有兩點與 Binance 相反:
+    //   1. time 的單位是「秒」不是毫秒 → 要乘 1000
+    //   2. 排列是新到舊 → 畫折線前必須依時間升冪重排,否則線會來回折疊
+    klines = raw
+      .map(k => ({ t: Number(k[0]) * 1000, close: Number(k[4]) }))
+      .filter(k => isFinite(k.t) && isFinite(k.close) && k.close > 0 && k.t >= T0 && k.t <= T1)
+      .sort((a, b) => a.t - b.t);
+  } catch (err) {
+    // 抓不到就不畫走勢線,其餘功能照常。
+    klines = [];
+    console.warn('走勢圖資料抓不到:', err.message);
+  }
+}
+
+/* ===== 啟動 ===== */
+(async function boot() {
+  // 還原上次記住的名字/PIN(src/api.js 的 localStorage 存取,經 saveMe/loadMe),
+  // 並讀出上次沒送出成功而暫存的下注紀錄(pendingBet,見 renderBetContent 的
+  // 「重送／丟掉」按鈕)。
+  const saved = api.loadMe();
+  if (saved) { state.bet.name = saved.name; state.bet.pin = saved.pin; }
+  state.pendingBet = api.loadPending();
+
+  await Promise.all([refresh(), loadKlines()]);
+  if (saved) updateMine(saved.name);
+  render();
+
+  // 戰況頁每 30 秒同步一次。切到背景時停掉,免得手機一直耗電。
+  // startPoll 用 if(!pollTimer) 確保冪等,快速切分頁/切標籤不會疊出第二個計時器。
+  const startPoll = () => { if (!pollTimer) pollTimer = setInterval(refresh, 30000); };
+  const stopPoll = () => { clearInterval(pollTimer); pollTimer = null; };
+  document.addEventListener('visibilitychange', () => document.hidden ? stopPoll() : (refresh(), startPoll()));
+  startPoll();
+})();
+</script>
