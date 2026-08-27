@@ -87,7 +87,11 @@ button{font-family:var(--font-body);cursor:pointer}
 
 /* ---------- generic section / card ---------- */
 .section{margin:0 14px 16px}
-.section-title{font-size:15px;font-weight:400;font-family:var(--font-display);letter-spacing:.01em;color:var(--gold);margin:0 0 10px}
+.section-title{font-size:15px;font-weight:400;font-family:var(--font-display);letter-spacing:.01em;color:var(--gold);margin:0 0 10px;display:flex;align-items:center;gap:6px}
+/* 分頁層級的大標題。參考稿用它把頁面標題跟區塊標題分開:24px 置中,
+   比 15px 的 section-title 明顯高一級。 */
+.page-title{font-family:var(--font-display);font-weight:400;font-size:24px;text-align:center;color:var(--gold);
+  margin:6px 0 10px;text-shadow:0 2px 0 #7a4e04,0 4px 10px rgba(0,0,0,.5);display:block}
 .card{background:var(--bg-card);border:1px solid var(--wood-line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
 .empty-note{font-size:12.5px;color:var(--cream-dim);text-align:center;padding:14px 4px}
 
@@ -652,7 +656,7 @@ function renderBetContent() {
   }
 
   return `
-  <div class="section"><div class="section-title">🍗 我要下注</div></div>
+  <div class="section"><h2 class="page-title">🎯 我要下注</h2></div>
 
   <div class="section">
     <div class="section-title">1. 這是誰</div>
@@ -662,9 +666,7 @@ function renderBetContent() {
         <input type="text" id="pin" placeholder="PIN" inputmode="numeric" maxlength="6"
                aria-label="4 到 6 位數 PIN" value="${esc(state.bet.pin || '')}">
       </div>
-      <button class="primary-btn" id="submit-bet" style="margin-top:10px" ${submitDisabled ? 'disabled' : ''}>${btnLabel}</button>
       <p class="hint-text">首次下注請設定並記住 4 到 6 位數字 PIN 碼，若之後要改注需填入才能改注。</p>
-      ${msgHtml}
     </div>
   </div>
 
@@ -694,6 +696,14 @@ function renderBetContent() {
       </div>
     </div>
   </div>
+
+    <!-- 送出按鈕自成一個 section 放在最底部,與參考稿一致。順序本身就是操作
+         流程:先選人、再定價、最後送出。訊息區跟著按鈕走,不然送出結果會顯示
+         在畫面上方、玩家看不到。 -->
+    <div class="section">
+      <button class="primary-btn" id="submit-bet" ${submitDisabled ? 'disabled' : ''}>${btnLabel}</button>
+      ${msgHtml}
+    </div>
   `;
 }
 
