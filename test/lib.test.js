@@ -219,10 +219,10 @@ test('validateSubmission 對 null body 回傳失敗而不拋例外', () => {
 });
 
 // --- ROSTER／rosterIdOf：白名單取代原本一整組啟發式檢查 ---
-test('ROSTER 剛好 26 個名字，正規化後彼此不重複', () => {
-  assert.strictEqual(lib.ROSTER.length, 26);
+test('ROSTER 剛好 21 個名字，正規化後彼此不重複', () => {
+  assert.strictEqual(lib.ROSTER.length, 21);
   const normalized = lib.ROSTER.map(lib.normalizeName);
-  assert.strictEqual(new Set(normalized).size, 26);
+  assert.strictEqual(new Set(normalized).size, 21);
 });
 
 test('rosterIdOf 忽略大小寫與全形半形，一律解析回同一個 canonical 名字', () => {

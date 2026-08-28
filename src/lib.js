@@ -23,10 +23,10 @@ function normalizeName(name) {
 // 寫進 Sheet 儲存格一定安全，因為每一筆都已經檢查過。
 // 要新增或修改玩家，直接編輯這個陣列並重新部署，沒有其他地方要改。
 const ROSTER = [
-  'David', 'Justin', 'Aaron', 'Daniel', 'Emma', 'Isam', 'Jerry', 'Kate Huang',
-  'Liang', 'Lin', 'Lydia', 'Mark88', 'nica', 'RM林文彬', 'Roger', 'Roman',
-  'Sean', 'Simon', 'Sophia', '大衛鱸鰻', '安迪', '幸運好豪', '敦南RM黃煌堯',
-  '陳小明', 'Kevin', '祐群哥'
+  'David', 'Aaron', 'Daniel', 'Isam', 'Jerry', 'Kate Huang',
+  'Lin', 'Lydia', 'Mark88', 'nica', 'RM林文彬', 'Roger', 'Roman',
+  'Sean', 'Simon', 'Sophia', '大衛鱸鰻', '安迪', '幸運好豪',
+  '陳小明', 'Kevin'
 ];
 
 // 查找表在模組載入時建一次，而非每次呼叫 rosterIdOf 都重新正規化整份名單。
