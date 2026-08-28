@@ -2,6 +2,12 @@
 
 // 結算＝下注截止，同一瞬間
 const SETTLE_MS = Date.parse('2026-09-11T00:00:00+08:00');
+// 下注截止：9/09 整天都能下注，9/10 00:00 關閉。
+// ⚠️ 必須跟 SETTLE_MS 分開。SETTLE_MS 同時是容許值的分母
+//（容許值 = round(6 × √(距 SETTLE_MS 天數))），把它改成截止日會連計分
+// 基準一起改掉；而且已寫進 Sheet 的下注其 tol 是對著 9/11 算的，
+// 新舊兩批基準不一致就再也修不回來。截止只影響「還能不能送出」。
+const DEADLINE_MS = Date.parse('2026-09-10T00:00:00+08:00');
 const MS_PER_DAY = 86400000;
 
 // 名字正規化：NFKC 讓全形轉半形，再去空白、收斂內部空白、英文轉小寫。
@@ -20,7 +26,7 @@ const ROSTER = [
   'David', 'Justin', 'Aaron', 'Daniel', 'Emma', 'Isam', 'Jerry', 'Kate Huang',
   'Liang', 'Lin', 'Lydia', 'Mark88', 'nica', 'RM林文彬', 'Roger', 'Roman',
   'Sean', 'Simon', 'Sophia', '大衛鱸鰻', '安迪', '幸運好豪', '敦南RM黃煌堯',
-  '陳小明', 'Kevin'
+  '陳小明', 'Kevin', '祐群哥'
 ];
 
 // 查找表在模組載入時建一次，而非每次呼叫 rosterIdOf 都重新正規化整份名單。
@@ -60,9 +66,9 @@ function multOf(bet, mkt, settle, tol) {
   return Math.max(0, (1 + g / 10) * (1 - e / tol));
 }
 
-function isClosed(nowMs, settleMs) {
-  const s = (settleMs === undefined) ? SETTLE_MS : settleMs;
-  return nowMs >= s;
+function isClosed(nowMs, deadlineMs) {
+  const d = (deadlineMs === undefined) ? DEADLINE_MS : deadlineMs;
+  return nowMs >= d;
 }
 
 // bets 分頁的欄序。Code.gs 讀寫、rowToBet 解析都以此為準。
@@ -220,7 +226,7 @@ function validateSubmission(body) {
 // 檔尾匯出。Apps Script 沒有 module，typeof 檢查讓這段在 GAS 被安靜略過。
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    SETTLE_MS, MS_PER_DAY, BET_COLS, ROSTER,
+    SETTLE_MS, DEADLINE_MS, MS_PER_DAY, BET_COLS, ROSTER,
     normalizeName, rosterIdOf, daysLeftFrom, tolFor, gutsOf, multOf, isClosed,
     rowToBet, rosterFromRows, nextSeq, hasRecentNonce,
     parseTickerPrice, validateSubmission

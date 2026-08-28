@@ -689,7 +689,7 @@ function renderBetContent() {
         <button class="ghost-btn" id="drop-bet" style="width:auto;display:inline-block;margin-top:8px;padding:8px 14px">丟掉</button>
       </div>`;
   } else if (S.closed) {
-    msgHtml = `<div class="msg" id="bet-msg" style="color:var(--neon-red)">已於 9/11 00:00 截止,不能再改了。</div>`;
+    msgHtml = `<div class="msg" id="bet-msg" style="color:var(--neon-red)">已於 9/09 24:00 截止,不能再改了。</div>`;
   } else if (state.betMsg) {
     msgHtml = `<div class="msg" id="bet-msg" style="color:${state.betMsgBad ? 'var(--neon-red)' : 'var(--gold)'}">${esc(state.betMsg)}</div>`;
   } else {
@@ -784,7 +784,7 @@ function updateBetDynamic() {
 
   const msgEl = $('bet-msg');
   if (msgEl && S.closed) {
-    msgEl.textContent = '已於 9/11 00:00 截止,不能再改了。';
+    msgEl.textContent = '已於 9/09 24:00 截止,不能再改了。';
     msgEl.style.color = 'var(--neon-red)';
   }
 }

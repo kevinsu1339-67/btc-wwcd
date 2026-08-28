@@ -62,9 +62,30 @@ test('normalizeName 讓全形、大小寫、多餘空白指向同一個人', () 
   assert.strictEqual(lib.normalizeName('大  雄'), '大 雄');
 });
 
-test('isClosed 在截止瞬間就成立', () => {
-  assert.strictEqual(lib.isClosed(at('2026-09-10T23:59:59+08:00')), false);
-  assert.strictEqual(lib.isClosed(at('2026-09-11T00:00:00+08:00')), true);
+test('isClosed 以 9/09 結束為界（9/10 00:00 關閉）', () => {
+  assert.strictEqual(lib.isClosed(at('2026-09-09T23:59:59+08:00')), false);
+  assert.strictEqual(lib.isClosed(at('2026-09-10T00:00:00+08:00')), true);
+});
+
+/* 截止與結算是兩個不同的時刻，這條測試就是不讓人把它們合併回去。
+   SETTLE_MS 同時是容許值的分母（round(6 × √(距 SETTLE_MS 天數))），
+   一旦拿它當截止日，計分基準就會跟著搬家——而已經寫進 Sheet 的下注，
+   其 tol 是對著 9/11 算的，新舊兩批基準不一致再也修不回來。 */
+test('截止時刻與結算時刻必須是分開的兩個常數', () => {
+  assert.notStrictEqual(lib.DEADLINE_MS, lib.SETTLE_MS);
+  assert.ok(lib.DEADLINE_MS < lib.SETTLE_MS, '截止應早於結算');
+  // 截止後、結算前的那一刻：已經不能下注，但容許值仍以 9/11 為基準
+  const between = at('2026-09-10T12:00:00+08:00');
+  assert.strictEqual(lib.isClosed(between), true);
+  assert.strictEqual(lib.daysLeftFrom(between), 1, '容許值的分母仍看 SETTLE_MS');
+});
+
+test('最後一天下注的容許值仍以 9/11 為基準', () => {
+  // 9/09 23:59 是最後可下注的時刻，距 9/11 兩天 → 容許值 8
+  const last = at('2026-09-09T23:59:00+08:00');
+  assert.strictEqual(lib.isClosed(last), false);
+  assert.strictEqual(lib.daysLeftFrom(last), 2);
+  assert.strictEqual(lib.tolFor(lib.daysLeftFrom(last)), 8);
 });
 
 // --- bets 列聚合 ---
@@ -198,10 +219,10 @@ test('validateSubmission 對 null body 回傳失敗而不拋例外', () => {
 });
 
 // --- ROSTER／rosterIdOf：白名單取代原本一整組啟發式檢查 ---
-test('ROSTER 剛好 25 個名字，正規化後彼此不重複', () => {
-  assert.strictEqual(lib.ROSTER.length, 25);
+test('ROSTER 剛好 26 個名字，正規化後彼此不重複', () => {
+  assert.strictEqual(lib.ROSTER.length, 26);
   const normalized = lib.ROSTER.map(lib.normalizeName);
-  assert.strictEqual(new Set(normalized).size, 25);
+  assert.strictEqual(new Set(normalized).size, 26);
 });
 
 test('rosterIdOf 忽略大小寫與全形半形，一律解析回同一個 canonical 名字', () => {
