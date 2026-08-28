@@ -421,7 +421,7 @@ function renderHomeContent() {
       <span class="sym">BTC/USD</span>
       <span class="price" id="hero-price">${S.mkt ? '$' + fmtMoney(S.mkt) : '同步中…'}</span>
     </div>
-    <div class="btc-note" id="btc-note">${stale ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格' : 'Coinbase Exchange · 9/11 00:00(UTC+8)開盤結算'}</div>
+    <div class="btc-note" id="btc-note">${stale ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格' : 'Coinbase Exchange 即時價格'}</div>
   </div>
 
 <!--
@@ -550,7 +550,7 @@ function updateHomeDynamic() {
   const note = $('btc-note');
   if (note) note.textContent = S.src === 'fallback'
     ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格'
-    : 'Coinbase Exchange · 9/11 00:00(UTC+8)開盤結算';
+    : 'Coinbase Exchange 即時價格';
 
   const connEl = $('conn');
   if (connEl) {
