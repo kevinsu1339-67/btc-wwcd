@@ -38,7 +38,6 @@ button{font-family:var(--font-body);cursor:pointer}
 #app{
   width:100%;max-width:430px;min-height:100vh;position:relative;
   background:
-    linear-gradient(rgba(13,10,8,.78),rgba(13,10,8,.94)),
     url('assets/background.jpg') top center/cover no-repeat fixed;
   border-left:1px solid var(--wood-line);border-right:1px solid var(--wood-line);
   padding-bottom:calc(76px + env(safe-area-inset-bottom));
@@ -87,10 +86,10 @@ button{font-family:var(--font-body);cursor:pointer}
 
 /* ---------- generic section / card ---------- */
 .section{margin:0 14px 16px}
-.section-title{font-size:15px;font-weight:400;font-family:var(--font-display);letter-spacing:.01em;color:var(--gold);margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.section-title{font-size:19px;font-weight:700;font-family:times new roman;letter-spacing:.01em;color:var(--gold);margin:0 0 10px;display:flex;align-items:center;gap:6px}
 /* 分頁層級的大標題。參考稿用它把頁面標題跟區塊標題分開:24px 置中,
    比 15px 的 section-title 明顯高一級。 */
-.page-title{font-family:var(--font-display);font-weight:400;font-size:24px;text-align:center;color:var(--gold);
+.page-title{font-family:times new roman;font-weight:700;font-size:24px;text-align:center;color:var(--gold);
   margin:6px 0 10px;text-shadow:0 2px 0 #7a4e04,0 4px 10px rgba(0,0,0,.5);display:block}
 .card{background:var(--bg-card);border:1px solid var(--wood-line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
 .empty-note{font-size:12.5px;color:var(--cream-dim);text-align:center;padding:14px 4px}
@@ -420,12 +419,15 @@ function renderHomeContent() {
     <div class="btc-note" id="btc-note">${stale ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格' : 'Coinbase Exchange · 9/11 00:00(UTC+8)開盤結算'}</div>
   </div>
 
+<!--
   <div class="summary-bar" id="summary-bar">${summaryBarHtml(betCount, winCount, hostPL)}</div>
 
   <div class="section">
     <div class="section-title">📈 誰押在哪裡</div>
     <div class="card"><canvas id="scatter-canvas" height="180"></canvas></div>
   </div>
+
+-->
 
   <div class="section">
     <div class="section-title">🎚️ 假設結算價(拖動看排名怎麼變)</div>
@@ -449,39 +451,39 @@ function renderHomeContent() {
 
   <div class="section">
     <div class="section-title">📖 遊戲規則</div>
-    <div class="card">
+<div class="card" style="background-color: #00000099">
       <div class="rule-flow">
-        <div class="rule-chip"><div class="ico">😤</div><div class="lbl">膽量%</div></div>
+        <div class="rule-chip"><div class="ico" style="font-size: 24px">😤</div><div class="lbl" style="font-size: 18px; font-weight: 700; color: #FFFFFF">膽量%<br></div><div class="lbl">敢偏離市價</div></div>
         <div class="rule-arrow">×</div>
-        <div class="rule-chip"><div class="ico">🎯</div><div class="lbl">誤差%</div></div>
+        <div class="rule-chip"><div class="ico" style="font-size: 24px">🎯</div><div class="lbl" style="color: #FFFFFF; font-size: 18px"><b>誤差%</b></div><div class="lbl">準不準</div></div>
         <div class="rule-arrow">÷</div>
-        <div class="rule-chip"><div class="ico">📏</div><div class="lbl">容許值</div></div>
+        <div class="rule-chip"><div class="ico" style="font-size: 24px">📏</div><div class="lbl" style="font-size: 18px; font-weight: 700; color: #FFFFFF">容許值</div><div class="lbl">早鳥安全網</div></div>
         <div class="rule-arrow">=</div>
-        <div class="rule-chip"><div class="ico">🍗</div><div class="lbl">餐點倍數</div></div>
+        <div class="rule-chip"><div class="ico" style="font-size: 24px">🍗</div><div class="lbl" style="font-weight: 700; font-size: 18px; color: #FFFFFF">餐點<br>倍數</div></div>
+      </div>
+      <div class="rule-subtitle" style="font-family: Times New Roman; text-align: center"><b style="color: #FFC000; font-size: 18px">大膽下注又猜準，就能吃更好！</b></div>
+      <div class="rule-item">
+        <div class="rule-desc">😤 膽量：猜得離現價<b>越遠</b>，倍數越高，餐點越好！</div>
+        <div class="rule-formula">公式 = (預測價 − 下注當天市價) ÷ 下注當天市價 × 100</div>
       </div>
       <div class="rule-item">
-        <div class="rule-desc">😤 膽量:猜得離下注當天市價越遠,倍數越高。</div>
-        <div class="rule-formula">膽量(%) = |預測價 − 下注當天市價| ÷ 下注當天市價 × 100</div>
+        <div class="rule-desc">🎯誤差：猜得越<b>接近</b>結算價，扣分越少，餐點越好！</div>
+        <div class="rule-formula">公式 = (預測價 − 結算價) ÷ 結算價 × 100</div>
       </div>
       <div class="rule-item">
-        <div class="rule-desc">🎯 誤差:猜得離結算價越近,扣分越少。</div>
-        <div class="rule-formula">誤差(%) = |預測價 − 結算價| ÷ 結算價 × 100</div>
+        <div class="rule-desc">📏天數：<b>越早下注</b>，可容許誤差越大，餐點越好！</div>
+        <div class="rule-formula">公式 = ROUND(6 × √(下注日距結算日天數))</div>
       </div>
       <div class="rule-item">
-        <div class="rule-desc">📏 容許值:越早下注,可容許的誤差越大 — 這是早鳥優勢。</div>
-        <div class="rule-formula">容許值 = round(6 × √剩餘天數)</div>
-      </div>
-      <div class="rule-item">
-        <div class="rule-desc">🍗 餐點倍數:膽量加分、誤差扣分,兩者相乘算出最終倍率。</div>
-        <div class="rule-formula">餐點倍數 = max(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
+        <div class="rule-desc">🍗餐點倍數：膽量加分，誤差扣分算出倍率</div>
+        <div class="rule-formula">公式 = MAX(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
       </div>
       <div class="rule-divider"></div>
       <div class="rule-notes">
-        結算 = <b>Coinbase Exchange BTC-USD</b>,2026/09/11 00:00(UTC+8)開盤價。<br>
-        截止前可隨時改注,計分只看最新一筆,但每次送出都會留下紀錄。
+        (1) 下注日由系統自動記錄(下注當下的日期與市價)，同一個人可以重複下注，新的一筆會蓋掉舊的。<br>
+        (2) 開賽 8/26、截止 9/09、 結算 9/11 00:00(UTC+8)Binance BTC/USDT 開盤價。
       </div>
-    </div>
-  </div>
+    </div>  </div>
   `;
 }
 
@@ -877,7 +879,7 @@ function showConfirmModal(record) {
   mask.className = 'modal-mask';
   mask.innerHTML = `
     <div class="modal-box">
-      <h3>🍗 確認下注(截止前都能再改)</h3>
+      <div class="section-title">🍗 確認下注(截止前都能再改)</div>
       <div class="modal-row"><span>名字</span><span class="v">${esc(record.name)}</span></div>
       <div class="modal-row"><span>你的預測價</span><span class="v">$${fmtMoney(record.bet)}</span></div>
       <div class="modal-row"><span>下注日</span><span class="v">送出時由伺服器自動蓋章</span></div>
@@ -894,12 +896,12 @@ function showConfirmModal(record) {
         <div class="result-breakdown" id="result-breakdown"></div>
       </div>
 
-      <div class="modal-formula">
-        <div class="f-line">😤 <b>膽量(%)</b> = |預測價 − 下注當天市價| ÷ 下注當天市價 × 100</div>
-        <div class="f-line">🎯 <b>誤差(%)</b> = |預測價 − 結算價| ÷ 結算價 × 100</div>
-        <div class="f-line">📏 <b>容許值</b> = round(6 × √距結算天數)</div>
-        <div class="f-line result">🍗 <b>餐點倍數</b> = max(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
-        <div class="f-note">算出負數就當 0。截止前(9/11 00:00 UTC+8)可以隨時回來改注,計分只看最新一筆,但每次送出都會留下紀錄。</div>
+<div class="modal-formula">
+        <div class="f-line">😤 <b>膽量(%)<br></b> = (預測價 − 下注當天市價) ÷ 下注當天市價 × 100</div>
+        <div class="f-line">🎯 <b>誤差(%)<br></b> = (預測價 − 結算價) ÷ 結算價 × 100</div>
+        <div class="f-line">📏 <b>容許值</b> = 6 × √(距結算天數)</div>
+        <div class="f-line result" style="background: linear-gradient(180deg, #6A5D54, #28211a)">🍗 <b>餐點倍數<br></b> = MAX(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
+        <div class="f-note">算出負數就當 0。目前規則下，全場總和不會被強制拉平(參見戰況頁「主辦盈虧」)。</div>
       </div>
 
       <div class="modal-actions">
