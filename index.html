@@ -106,6 +106,11 @@ canvas{width:100%;display:block}
 /* ---------- 假設結算價滑桿 ---------- */
 .slider-row .lbl-row{display:flex;justify-content:space-between;font-size:12px;color:var(--cream-dim);margin-bottom:4px}
 .slider-row .lbl-row b{color:var(--gold);font-family:var(--font-mono)}
+/* 可直接輸入的數字欄位。做成看起來像原本那串粗體金字,只是點得進去。 */
+.inline-num{font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--gold);
+  background:transparent;border:none;border-bottom:1px dashed var(--gold-dim);
+  text-align:right;width:9ch;padding:0 2px 1px}
+.inline-num:focus{outline:none;border-bottom-color:var(--gold);background:rgba(242,183,5,.06)}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;background:transparent;margin:10px 0 2px;accent-color:var(--gold)}
 input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:var(--wood-line)}
 input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:var(--wood-line)}
@@ -433,7 +438,7 @@ function renderHomeContent() {
     <div class="section-title">🎚️ 假設結算價(拖動看排名怎麼變)</div>
     <div class="card">
       <div class="slider-row">
-        <div class="lbl-row"><span>假設 9/11 開出</span><b id="assume-val">$${fmtMoney(settle)}</b></div>
+        <div class="lbl-row"><span>假設 9/11 開出</span><input type="text" inputmode="numeric" class="inline-num" id="assume-val" value="${fmtMoney(settle)}" aria-label="假設結算價"></div>
         <input type="range" id="assume-slider" min="${SLIDER_LO}" max="${SLIDER_HI}" step="250" value="${Math.round(settle)}" aria-label="假設結算價">
         <div class="ends"><span>${fmtMoney(SLIDER_LO)}</span><span>${fmtMoney(SLIDER_HI)}</span></div>
       </div>
@@ -487,15 +492,49 @@ function renderHomeContent() {
   `;
 }
 
+/* 數字輸入欄的共用行為。
+   ⚠️ 打字途中「不」把值夾進範圍、也「不」重寫欄位內容——原本的寫法每按一鍵就
+   Math.max(SLIDER_LO, ...) 再回寫,結果打「8」立刻變成 30,000、游標跳到最後,
+   等於整個欄位打不進東西。改成:打字時只讀值、同步滑桿與試算;離開欄位(blur)
+   或按 Enter 時才夾到範圍內並補上千分位。 */
+function bindNumberInput(el, opts) {
+  if (!el) return;
+  el.addEventListener('input', () => {
+    const num = Number(el.value.replace(/[^0-9]/g, '')) || 0;
+    opts.onType(num);
+  });
+  const settle = () => {
+    const num = Math.min(SLIDER_HI, Math.max(SLIDER_LO, Number(el.value.replace(/[^0-9]/g, '')) || 0));
+    el.value = fmtMoney(num);
+    opts.onCommit(num);
+  };
+  el.addEventListener('blur', settle);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+}
+
 function afterHomeRender() {
   const slider = $('assume-slider');
+  const valInput = $('assume-val');
   if (slider) {
     slider.addEventListener('input', e => {
       state.assumedSettle = Number(e.target.value);
-      $('assume-val').textContent = '$' + fmtMoney(state.assumedSettle);
+      // 使用者正在輸入框裡打字時不要覆寫他打到一半的內容
+      if (valInput && document.activeElement !== valInput) valInput.value = fmtMoney(state.assumedSettle);
       updateHomeDynamic();
     });
   }
+  bindNumberInput(valInput, {
+    onType: num => {
+      state.assumedSettle = num;
+      if (slider && num >= SLIDER_LO && num <= SLIDER_HI) slider.value = num;
+      updateHomeDynamic();
+    },
+    onCommit: num => {
+      state.assumedSettle = num;
+      if (slider) slider.value = num;
+      updateHomeDynamic();
+    }
+  });
   drawScatterChart();
 }
 
@@ -714,7 +753,8 @@ function syncPredict(num) {
   state.bet.predict = num;
   const predictInput = $('predict-input');
   const predictSlider = $('predict-slider');
-  if (predictInput) predictInput.value = num ? fmtMoney(num) : '';
+  // 使用者正在這個欄位打字時不要覆寫（拖滑桿/按微調鍵才會走到這裡）
+  if (predictInput && document.activeElement !== predictInput) predictInput.value = num ? fmtMoney(num) : '';
   if (predictSlider) predictSlider.value = num;
   updateBetDynamic();
 }
@@ -769,17 +809,20 @@ function afterBetRender() {
   }
 
   const predictInput = $('predict-input');
-  if (predictInput) {
-    predictInput.addEventListener('input', e => {
-      const digits = e.target.value.replace(/[^0-9]/g, '');
-      const num = Math.min(SLIDER_HI, Math.max(SLIDER_LO, Number(digits) || 0));
+  bindNumberInput(predictInput, {
+    onType: num => {
       state.bet.predict = num;
-      e.target.value = num ? num.toLocaleString('en-US') : '';
+      const slider = $('predict-slider');
+      if (slider && num >= SLIDER_LO && num <= SLIDER_HI) slider.value = num;
+      updateBetDynamic();
+    },
+    onCommit: num => {
+      state.bet.predict = num;
       const slider = $('predict-slider');
       if (slider) slider.value = num;
       updateBetDynamic();
-    });
-  }
+    }
+  });
 
   const predictSlider = $('predict-slider');
   if (predictSlider) {
