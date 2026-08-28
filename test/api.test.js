@@ -129,11 +129,20 @@ test('伺服器回 ok:false 時不丟例外，由呼叫端判讀 reason', async 
   assert.strictEqual(api.loadPending(), null, 'PIN 錯不該留成待重送');
 });
 
-test('saveMe / loadMe 記得身分，免得每次重打', () => {
+test('saveMe / loadMe 只記名字，免得每次重選', () => {
   const api = createApi({ url: 'x', fetch: async () => okResponse({}), storage: fakeStorage() });
   assert.strictEqual(api.loadMe(), null);
-  api.saveMe('阿明', '1234');
-  assert.deepStrictEqual(api.loadMe(), { name: '阿明', pin: '1234' });
+  api.saveMe('Kevin');
+  assert.deepStrictEqual(api.loadMe(), { name: 'Kevin' });
+});
+
+test('saveMe 絕不把 PIN 寫進 storage，就算呼叫端多傳了', () => {
+  const store = fakeStorage();
+  const api = createApi({ url: 'x', fetch: async () => okResponse({}), storage: store });
+  api.saveMe('Kevin', '123456');           // 多傳一個參數
+  assert.deepStrictEqual(api.loadMe(), { name: 'Kevin' });
+  const raw = store.getItem('chickendinner:me');
+  assert.ok(!/123456/.test(raw), '原始儲存字串裡不可以出現 PIN，實際為 ' + raw);
 });
 
 test('storage 整個壞掉時不可讓下注流程炸掉', async () => {

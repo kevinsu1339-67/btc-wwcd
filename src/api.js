@@ -74,7 +74,11 @@
       placeBet: placeBet,
       loadPending: () => readKey(PENDING_KEY),
       clearPending: () => dropKey(PENDING_KEY),
-      saveMe: (name, pin) => writeKey(ME_KEY, { name: name, pin: pin }),
+      // 只記名字,不記 PIN。PIN 存在的意義就是防止別人冒名改注,
+      // 存進 localStorage 等於同一台裝置上誰都能改別人的注,而且
+      // DevTools 直接看得到明碼。這裡刻意不收 pin 參數,讓「不小心存到」
+      // 在結構上就不可能發生。
+      saveMe: (name) => writeKey(ME_KEY, { name: name }),
       loadMe: () => readKey(ME_KEY),
       makeNonce: makeNonce
     };

@@ -840,7 +840,7 @@ async function submitBet(payload) {
       state.betMsgBad = true;
       return false;
     }
-    api.saveMe(payload.name, payload.pin);
+    api.saveMe(payload.name);   // 只記名字,PIN 不留在裝置上
     state.bet.name = payload.name;
     state.bet.pin = payload.pin;
     state.pendingBet = null;
@@ -1010,11 +1010,12 @@ async function loadKlines() {
 
 /* ===== 啟動 ===== */
 (async function boot() {
-  // 還原上次記住的名字/PIN(src/api.js 的 localStorage 存取,經 saveMe/loadMe),
+  // 還原上次記住的名字(src/api.js 的 localStorage 存取,經 saveMe/loadMe)。
+  // PIN 刻意不還原:它是防冒名的憑證,留在裝置上等於同一台誰都能改別人的注。
   // 並讀出上次沒送出成功而暫存的下注紀錄(pendingBet,見 renderBetContent 的
   // 「重送／丟掉」按鈕)。
   const saved = api.loadMe();
-  if (saved) { state.bet.name = saved.name; state.bet.pin = saved.pin; }
+  if (saved) state.bet.name = saved.name;
   state.pendingBet = api.loadPending();
 
   await Promise.all([refresh(), loadKlines()]);
