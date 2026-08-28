@@ -87,11 +87,13 @@ button{font-family:var(--font-body);cursor:pointer}
 /* ---------- generic section / card ---------- */
 .section{margin:0 14px 16px}
 .section-title{font-size:19px;font-weight:700;font-family:times new roman;letter-spacing:.01em;color:var(--gold);margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.section-title .info-icon{margin-left:auto;width:20px;height:20px;border-radius:50%;border:1px solid var(--wood-line);color:var(--cream-dim);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-family:var(--font-body);background: #ffef94;padding: 13px; border-color: #ffffff; }
+.section-title .info-icon:active{transform:scale(.92)}
 /* 分頁層級的大標題。參考稿用它把頁面標題跟區塊標題分開:24px 置中,
    比 15px 的 section-title 明顯高一級。 */
 .page-title{font-family:times new roman;font-weight:700;font-size:24px;text-align:center;color:var(--gold);
   margin:6px 0 10px;text-shadow:0 2px 0 #7a4e04,0 4px 10px rgba(0,0,0,.5);display:block}
-.card{background:var(--bg-card);border:1px solid var(--wood-line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
+.card{background:var(--bg-card);border:1px solid var(--wood-line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom: 10px;}
 .empty-note{font-size:12.5px;color:var(--cream-dim);text-align:center;padding:14px 4px}
 
 .summary-bar{display:flex;gap:8px;margin:0 14px 14px}
@@ -435,7 +437,7 @@ function renderHomeContent() {
 -->
 
   <div class="section">
-    <div class="section-title">🎚️ 假設結算價(拖動看排名怎麼變)</div>
+    <div class="section-title">🏆 排行榜<span class="info-icon" id="lb-help-icon" role="button" tabindex="0" aria-label="排行榜計分說明">❓</span></div>
     <div class="card">
       <div class="slider-row">
         <div class="lbl-row"><span>假設 9/11 開出</span><input type="text" inputmode="numeric" class="inline-num" id="assume-val" value="${fmtMoney(settle)}" aria-label="假設結算價"></div>
@@ -443,10 +445,7 @@ function renderHomeContent() {
         <div class="ends"><span>${fmtMoney(SLIDER_LO)}</span><span>${fmtMoney(SLIDER_HI)}</span></div>
       </div>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="section-title">🏆 排行榜</div>
     <div class="card" style="margin-bottom:8px">
       <div class="rule-text" id="conn">${state.connMsg}</div>
       <div class="rule-text">依上面的假設結算價即時重排</div>
@@ -454,41 +453,6 @@ function renderHomeContent() {
     <div id="leaderboard-list">${leaderboardHtml(results)}</div>
   </div>
 
-  <div class="section">
-    <div class="section-title">📖 遊戲規則</div>
-<div class="card" style="background-color: #00000099">
-      <div class="rule-flow">
-        <div class="rule-chip"><div class="ico" style="font-size: 24px">😤</div><div class="lbl" style="font-size: 18px; font-weight: 700; color: #FFFFFF">膽量%<br></div><div class="lbl">敢偏離市價</div></div>
-        <div class="rule-arrow">×</div>
-        <div class="rule-chip"><div class="ico" style="font-size: 24px">🎯</div><div class="lbl" style="color: #FFFFFF; font-size: 18px"><b>誤差%</b></div><div class="lbl">準不準</div></div>
-        <div class="rule-arrow">÷</div>
-        <div class="rule-chip"><div class="ico" style="font-size: 24px">📏</div><div class="lbl" style="font-size: 18px; font-weight: 700; color: #FFFFFF">容許值</div><div class="lbl">早鳥安全網</div></div>
-        <div class="rule-arrow">=</div>
-        <div class="rule-chip"><div class="ico" style="font-size: 24px">🍗</div><div class="lbl" style="font-weight: 700; font-size: 18px; color: #FFFFFF">餐點<br>倍數</div></div>
-      </div>
-      <div class="rule-subtitle" style="font-family: Times New Roman; text-align: center"><b style="color: #FFC000; font-size: 18px">大膽下注又猜準，就能吃更好！</b></div>
-      <div class="rule-item">
-        <div class="rule-desc">😤 膽量：猜得離現價<b>越遠</b>，倍數越高，餐點越好！</div>
-        <div class="rule-formula">公式 = (預測價 − 下注當天市價) ÷ 下注當天市價 × 100</div>
-      </div>
-      <div class="rule-item">
-        <div class="rule-desc">🎯誤差：猜得越<b>接近</b>結算價，扣分越少，餐點越好！</div>
-        <div class="rule-formula">公式 = (預測價 − 結算價) ÷ 結算價 × 100</div>
-      </div>
-      <div class="rule-item">
-        <div class="rule-desc">📏天數：<b>越早下注</b>，可容許誤差越大，餐點越好！</div>
-        <div class="rule-formula">公式 = ROUND(6 × √(下注日距結算日天數))</div>
-      </div>
-      <div class="rule-item">
-        <div class="rule-desc">🍗餐點倍數：膽量加分，誤差扣分算出倍率</div>
-        <div class="rule-formula">公式 = MAX(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
-      </div>
-      <div class="rule-divider"></div>
-      <div class="rule-notes">
-        (1) 下注日由系統自動記錄(下注當下的日期與市價)，同一個人可以重複下注，新的一筆會蓋掉舊的。<br>
-        (2) 開賽 8/26、截止 9/09、 結算 9/11 00:00(UTC+8) Coinbase Exchange BTC-USD 開盤價。
-      </div>
-    </div>  </div>
   `;
 }
 
@@ -536,6 +500,60 @@ function afterHomeRender() {
     }
   });
   drawScatterChart();
+
+  const lbHelpIcon = $('lb-help-icon');
+  if (lbHelpIcon) lbHelpIcon.addEventListener('click', showLbRulesModal);
+}
+
+/* 排行榜標題旁的「❓」計分說明彈窗,內容取自下方「📖 遊戲規則」卡片,
+   純展示用,不影響任何算式或資料。 */
+function showLbRulesModal() {
+  const mask = document.createElement('div');
+  mask.className = 'modal-mask';
+  mask.innerHTML = `
+    <div class="modal-box">
+      <div class="section-title">📖 排行榜計分怎麼算</div>
+      <div class="card" style="background-color: #00000099">
+        <div class="rule-flow">
+          <div class="rule-chip"><div class="ico" style="font-size: 24px">😤</div><div class="lbl" style="font-size: 18px; font-weight: 700; color: #FFFFFF">膽量%<br></div><div class="lbl">敢偏離市價</div></div>
+          <div class="rule-arrow">×</div>
+          <div class="rule-chip"><div class="ico" style="font-size: 24px">🎯</div><div class="lbl" style="color: #FFFFFF; font-size: 18px"><b>誤差%</b></div><div class="lbl">準不準</div></div>
+          <div class="rule-arrow">÷</div>
+          <div class="rule-chip"><div class="ico" style="font-size: 24px">📏</div><div class="lbl" style="font-size: 18px; font-weight: 700; color: #FFFFFF">容許值</div><div class="lbl">早鳥安全網</div></div>
+          <div class="rule-arrow">=</div>
+          <div class="rule-chip"><div class="ico" style="font-size: 24px">🍗</div><div class="lbl" style="font-weight: 700; font-size: 18px; color: #FFFFFF">餐點<br>倍數</div></div>
+        </div>
+        <div class="rule-subtitle" style="font-family: Times New Roman; text-align: center"><b style="color: #FFC000; font-size: 18px">大膽下注又猜準，就能吃更好！</b></div>
+        <div class="rule-item">
+          <div class="rule-desc">😤 膽量：猜得離現價<b>越遠</b>，倍數越高，餐點越好！</div>
+          <div class="rule-formula">公式 = (預測價 − 下注當天市價) ÷ 下注當天市價 × 100</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-desc">🎯誤差：猜得越<b>接近</b>結算價，扣分越少，餐點越好！</div>
+          <div class="rule-formula">公式 = (預測價 − 結算價) ÷ 結算價 × 100</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-desc">📏天數：<b>越早下注</b>，可容許誤差越大，餐點越好！</div>
+          <div class="rule-formula">公式 = ROUND(6 × √(下注日距結算日天數))</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-desc">🍗餐點倍數：膽量加分，誤差扣分算出倍率</div>
+          <div class="rule-formula">公式 = MAX(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
+        </div>
+        <div class="rule-divider"></div>
+        <div class="rule-notes">
+          (1) 下注日由系統自動記錄(下注當下的日期與市價)，同一個人可以重複下注，新的一筆會蓋掉舊的。<br>
+          (2) 開賽 8/26、截止 9/09、 結算 9/11 00:00(UTC+8) Coinbase Exchange BTC-USD 開盤價。
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost-btn" id="lb-rules-close">關閉</button>
+      </div>
+    </div>`;
+  document.body.appendChild(mask);
+  mask.querySelector('#lb-rules-close').addEventListener('click', () => {
+    document.body.removeChild(mask);
+  });
 }
 
 /* 只更新統計/排行榜/走勢圖/連線狀態,不重繪整頁——拖動假設結算價滑桿時,或
@@ -689,7 +707,7 @@ function renderBetContent() {
         <button class="ghost-btn" id="drop-bet" style="width:auto;display:inline-block;margin-top:8px;padding:8px 14px">丟掉</button>
       </div>`;
   } else if (S.closed) {
-    msgHtml = `<div class="msg" id="bet-msg" style="color:var(--neon-red)">已於 9/09 24:00 截止,不能再改了。</div>`;
+    msgHtml = `<div class="msg" id="bet-msg" style="color:var(--neon-red)">已於 9/11 00:00 截止,不能再改了。</div>`;
   } else if (state.betMsg) {
     msgHtml = `<div class="msg" id="bet-msg" style="color:${state.betMsgBad ? 'var(--neon-red)' : 'var(--gold)'}">${esc(state.betMsg)}</div>`;
   } else {
@@ -784,7 +802,7 @@ function updateBetDynamic() {
 
   const msgEl = $('bet-msg');
   if (msgEl && S.closed) {
-    msgEl.textContent = '已於 9/09 24:00 截止,不能再改了。';
+    msgEl.textContent = '已於 9/11 00:00 截止,不能再改了。';
     msgEl.style.color = 'var(--neon-red)';
   }
 }
@@ -927,6 +945,7 @@ function showConfirmModal(record) {
       <div class="modal-row"><span>你的預測價</span><span class="v">$${fmtMoney(record.bet)}</span></div>
       <div class="modal-row"><span>下注日</span><span class="v">送出時由伺服器自動蓋章</span></div>
 
+<!--
       <div class="trial-label">拖拉試算 9/11 BTC 各價位,你的餐點倍數是多少</div>
       <div class="trial-price" id="modal-settle-val">$${fmtMoney(initial)}</div>
       <input type="range" id="modal-settle-slider" min="${sliderMin}" max="${sliderMax}" value="${Math.round(initial)}" step="10" aria-label="試算結算價">
@@ -946,6 +965,8 @@ function showConfirmModal(record) {
         <div class="f-line result" style="background: linear-gradient(180deg, #6A5D54, #28211a)">🍗 <b>餐點倍數<br></b> = MAX(0, (1 + 膽量÷10) × (1 − 誤差÷容許值))</div>
         <div class="f-note">算出負數就當 0。目前規則下，全場總和不會被強制拉平(參見戰況頁「主辦盈虧」)。</div>
       </div>
+
+-->
 
       <div class="modal-actions">
         <button class="primary-btn" id="confirm-ok">送出下注</button>
@@ -976,12 +997,15 @@ function showConfirmModal(record) {
       `膽量 ${courage.toFixed(2)}%,容許值 ±${tol}%<br>` +
       `餐點倍數 = <b>${mult.toFixed(2)}</b>`;
   };
-  updateModalMult(initial);
-  document.getElementById('modal-settle-slider').addEventListener('input', e => {
-    const v = Number(e.target.value);
-    document.getElementById('modal-settle-val').textContent = '$' + fmtMoney(v);
-    updateModalMult(v);
-  });
+  const modalSettleSlider = document.getElementById('modal-settle-slider');
+  if (modalSettleSlider) {
+    updateModalMult(initial);
+    modalSettleSlider.addEventListener('input', e => {
+      const v = Number(e.target.value);
+      document.getElementById('modal-settle-val').textContent = '$' + fmtMoney(v);
+      updateModalMult(v);
+    });
+  }
 
   mask.querySelector('#confirm-ok').addEventListener('click', () => {
     document.body.removeChild(mask);
