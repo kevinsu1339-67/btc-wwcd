@@ -423,7 +423,9 @@ function renderHomeContent() {
       <span class="sym">BTC/USD</span>
       <span class="price" id="hero-price">${S.mkt ? '$' + fmtMoney(S.mkt) : '同步中…'}</span>
     </div>
-    <div class="btc-note" id="btc-note">${stale ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格' : 'Coinbase Exchange 即時價格'}</div>
+    <div class="btc-note" id="btc-note">${stale ? '⚠️ 市價暫時抓不到,顯示的是最後一次成功的價格' : 'Coinbase Exchange 即時價格'}
+<br><div class="day-badge">遊戲時間：即日起 ～ 9/11 0:00</div>
+</div>
   </div>
 
 <!--
